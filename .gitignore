@@ -1,0 +1,9 @@
+.dub
+docs.json
+__dummy.html
+*.o
+*.obj
+c/*
+*.tar.gz
+hdf5-test
+dub.selections.json

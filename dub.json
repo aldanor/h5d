@@ -1,0 +1,25 @@
+{
+	"name": "hdf5",
+	"description": "Interface to the HDF5 C API",
+	"copyright": "Copyright © 2014, Ivan Smirnov",
+	"authors": ["Ivan Smirnov"],
+	"dependencies": {
+	},
+    "configurations": [
+        {
+            "name": "unittest",
+            "targetType": "executable",
+            "dflags": ["-main"],
+            "targetName": "hdf5-test"
+        },
+        {
+            "name": "library",
+            "targetType": "library"
+        }
+    ],
+    "sourcePaths": ["hdf5"],
+    "importPaths": ["."],
+    "excludedSourceFiles": [],
+    "libs": ["hdf5", "hdf5_hl"],
+    "lflags": ["-L/usr/local/lib"]
+}
