@@ -20,3 +20,5 @@ public import hdf5.c.h5r;
 public import hdf5.c.h5s;
 public import hdf5.c.h5t;
 public import hdf5.c.h5z;
+
+public import hdf5.c.drivers;
