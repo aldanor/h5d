@@ -355,54 +355,58 @@ mixin makeProperties!(mixin(__MODULE__), "_g", H5open);
 
 /* Additional aliases */
 
-alias H5T_INTEL_I8  = H5T_STD_I8LE;
-alias H5T_INTEL_I16 = H5T_STD_I16LE;
-alias H5T_INTEL_I32 = H5T_STD_I32LE;
-alias H5T_INTEL_I64 = H5T_STD_I64LE;
-alias H5T_INTEL_U8  = H5T_STD_U8LE;
-alias H5T_INTEL_U16 = H5T_STD_U16LE;
-alias H5T_INTEL_U32 = H5T_STD_U32LE;
-alias H5T_INTEL_U64 = H5T_STD_U64LE;
-alias H5T_INTEL_B8  = H5T_STD_B8LE;
-alias H5T_INTEL_B16 = H5T_STD_B16LE;
-alias H5T_INTEL_B32 = H5T_STD_B32LE;
-alias H5T_INTEL_B64 = H5T_STD_B64LE;
-alias H5T_INTEL_F32 = H5T_IEEE_F32LE;
-alias H5T_INTEL_F64 = H5T_IEEE_F64LE;
+package {
+    alias H5T_INTEL_I8_g_a  = H5T_STD_I8LE_g;
+    alias H5T_INTEL_I16_g_a = H5T_STD_I16LE_g;
+    alias H5T_INTEL_I32_g_a = H5T_STD_I32LE_g;
+    alias H5T_INTEL_I64_g_a = H5T_STD_I64LE_g;
+    alias H5T_INTEL_U8_g_a  = H5T_STD_U8LE_g;
+    alias H5T_INTEL_U16_g_a = H5T_STD_U16LE_g;
+    alias H5T_INTEL_U32_g_a = H5T_STD_U32LE_g;
+    alias H5T_INTEL_U64_g_a = H5T_STD_U64LE_g;
+    alias H5T_INTEL_B8_g_a  = H5T_STD_B8LE_g;
+    alias H5T_INTEL_B16_g_a = H5T_STD_B16LE_g;
+    alias H5T_INTEL_B32_g_a = H5T_STD_B32LE_g;
+    alias H5T_INTEL_B64_g_a = H5T_STD_B64LE_g;
+    alias H5T_INTEL_F32_g_a = H5T_IEEE_F32LE_g;
+    alias H5T_INTEL_F64_g_a = H5T_IEEE_F64LE_g;
 
-alias H5T_ALPHA_I8  = H5T_STD_I8LE;
-alias H5T_ALPHA_I16 = H5T_STD_I16LE;
-alias H5T_ALPHA_I32 = H5T_STD_I32LE;
-alias H5T_ALPHA_I64 = H5T_STD_I64LE;
-alias H5T_ALPHA_U8  = H5T_STD_U8LE;
-alias H5T_ALPHA_U16 = H5T_STD_U16LE;
-alias H5T_ALPHA_U32 = H5T_STD_U32LE;
-alias H5T_ALPHA_U64 = H5T_STD_U64LE;
-alias H5T_ALPHA_B8  = H5T_STD_B8LE;
-alias H5T_ALPHA_B16 = H5T_STD_B16LE;
-alias H5T_ALPHA_B32 = H5T_STD_B32LE;
-alias H5T_ALPHA_B64 = H5T_STD_B64LE;
-alias H5T_ALPHA_F32 = H5T_IEEE_F32LE;
-alias H5T_ALPHA_F64 = H5T_IEEE_F64LE;
+    alias H5T_ALPHA_I8_g_a  = H5T_STD_I8LE_g;
+    alias H5T_ALPHA_I16_g_a = H5T_STD_I16LE_g;
+    alias H5T_ALPHA_I32_g_a = H5T_STD_I32LE_g;
+    alias H5T_ALPHA_I64_g_a = H5T_STD_I64LE_g;
+    alias H5T_ALPHA_U8_g_a  = H5T_STD_U8LE_g;
+    alias H5T_ALPHA_U16_g_a = H5T_STD_U16LE_g;
+    alias H5T_ALPHA_U32_g_a = H5T_STD_U32LE_g;
+    alias H5T_ALPHA_U64_g_a = H5T_STD_U64LE_g;
+    alias H5T_ALPHA_B8_g_a  = H5T_STD_B8LE_g;
+    alias H5T_ALPHA_B16_g_a = H5T_STD_B16LE_g;
+    alias H5T_ALPHA_B32_g_a = H5T_STD_B32LE_g;
+    alias H5T_ALPHA_B64_g_a = H5T_STD_B64LE_g;
+    alias H5T_ALPHA_F32_g_a = H5T_IEEE_F32LE_g;
+    alias H5T_ALPHA_F64_g_a = H5T_IEEE_F64LE_g;
 
-alias H5T_MIPS_I8   = H5T_STD_I8BE;
-alias H5T_MIPS_I16  = H5T_STD_I16BE;
-alias H5T_MIPS_I32  = H5T_STD_I32BE;
-alias H5T_MIPS_I64  = H5T_STD_I64BE;
-alias H5T_MIPS_U8   = H5T_STD_U8BE;
-alias H5T_MIPS_U16  = H5T_STD_U16BE;
-alias H5T_MIPS_U32  = H5T_STD_U32BE;
-alias H5T_MIPS_U64  = H5T_STD_U64BE;
-alias H5T_MIPS_B8   = H5T_STD_B8BE;
-alias H5T_MIPS_B16  = H5T_STD_B16BE;
-alias H5T_MIPS_B32  = H5T_STD_B32BE;
-alias H5T_MIPS_B64  = H5T_STD_B64BE;
-alias H5T_MIPS_F32  = H5T_IEEE_F32BE;
-alias H5T_MIPS_F64  = H5T_IEEE_F64BE;
+    alias H5T_MIPS_I8_g_a   = H5T_STD_I8BE_g;
+    alias H5T_MIPS_I16_g_a  = H5T_STD_I16BE_g;
+    alias H5T_MIPS_I32_g_a  = H5T_STD_I32BE_g;
+    alias H5T_MIPS_I64_g_a  = H5T_STD_I64BE_g;
+    alias H5T_MIPS_U8_g_a   = H5T_STD_U8BE_g;
+    alias H5T_MIPS_U16_g_a  = H5T_STD_U16BE_g;
+    alias H5T_MIPS_U32_g_a  = H5T_STD_U32BE_g;
+    alias H5T_MIPS_U64_g_a  = H5T_STD_U64BE_g;
+    alias H5T_MIPS_B8_g_a   = H5T_STD_B8BE_g;
+    alias H5T_MIPS_B16_g_a  = H5T_STD_B16BE_g;
+    alias H5T_MIPS_B32_g_a  = H5T_STD_B32BE_g;
+    alias H5T_MIPS_B64_g_a  = H5T_STD_B64BE_g;
+    alias H5T_MIPS_F32_g_a  = H5T_IEEE_F32BE_g;
+    alias H5T_MIPS_F64_g_a  = H5T_IEEE_F64BE_g;
 
-static if (CHAR_MIN) {
-    alias H5T_NATIVE_CHAR = H5T_NATIVE_SCHAR;
+    static if (CHAR_MIN) {
+        alias H5T_NATIVE_CHAR_g_a = H5T_NATIVE_SCHAR_g;
+    }
+    else {
+        alias H5T_NATIVE_CHAR_g_a = H5T_NATIVE_UCHAR_g;
+    }
 }
-else {
-    alias H5T_NATIVE_CHAR = H5T_NATIVE_UCHAR;
-}
+
+mixin makeProperties!(mixin(__MODULE__), "_g_a");

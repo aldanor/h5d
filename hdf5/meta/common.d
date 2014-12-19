@@ -1,5 +1,6 @@
 module hdf5.meta.common;
 
+alias ID(T) = T;
 alias ID(alias T) = T;
 
 unittest {

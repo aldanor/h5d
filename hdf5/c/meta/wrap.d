@@ -8,30 +8,6 @@ import std.format;
 
 import hdf5.meta;
 
-bool _propertyNameMatches(alias parent, string suffix, string name)() {
-    static if (!__traits(compiles, __traits(getMember, parent, name)))
-        return false;
-    else {
-        alias symbol = ID!(__traits(getMember, parent, name));
-        enum name = __traits(identifier, symbol);
-        enum n = suffix.length;
-        static if (!is(symbol) && is(typeof(symbol)))
-            return (name.length > n) && (name[$ - n .. $] == suffix);
-        else
-            return false;
-    }
-}
-
-unittest {
-    struct Foo {
-        static int foo_g, foo_x, _g;
-    }
-    static assert(_propertyNameMatches!(Foo, "_g", "foo_g"));
-    static assert(!_propertyNameMatches!(Foo, "_g", "foo_x"));
-    static assert(!_propertyNameMatches!(Foo, "_g", "_g"));
-    static assert(!_propertyNameMatches!(Foo.foo_g, "_g", "foo_g"));
-}
-
 mixin template _makeProperty(alias parent, string suffix, alias func, string name) {
     mixin(("public typeof(__traits(getMember, parent, name)) %s() @property nothrow "
           ~ "{ cast(void) func(); return __traits(getMember, parent, name); }").format(
@@ -50,26 +26,51 @@ unittest {
 
 mixin template _makeProperties(alias parent, string suffix, alias func, names...) {
     static if (names.length > 0) {
-        static if (_propertyNameMatches!(parent, suffix, names[0]))
-            mixin _makeProperty!(parent, suffix, func, names[0]);
+        mixin _makeProperty!(parent, suffix, func, names[0]);
         mixin _makeProperties!(parent, suffix, func, names[1 .. $]);
     }
 }
 
-template hasSuffix(string suffix) {
-    bool _hasSuffix(string s)() {
-        return (s.length > suffix.length) && (s[$ - suffix.length .. $] == suffix);
+template _variableSuffixMatches(alias parent, string suffix) {
+    bool _variableSuffixMatchesImpl(string name)() {
+        static if (!__traits(compiles, __traits(getMember, parent, name)))
+            return false;
+        else {
+            alias symbol = ID!(__traits(getMember, parent, name));
+            static if (is(symbol) || !is(typeof(symbol)))
+                return false;
+            else
+                return (name.length > suffix.length) && (name[$ - suffix.length .. $] == suffix);
+        }
     }
-    alias hasSuffix = _hasSuffix;
+    alias _variableSuffixMatches = _variableSuffixMatchesImpl;
+}
+
+unittest {
+    struct Foo {
+        static int foo_g, foo_x, _g;
+        alias qwe_g = int;
+    }
+    alias check = _variableSuffixMatches!(Foo, "_g");
+    static assert(check!("foo_g"));
+    static assert(!check!("foo_x"));
+    static assert(!check!("_g"));
+    static assert(!check!("qwe_g"));
+    static assert(!check!("foobar_g"));
+}
+
+template _stripSuffix(string suffix) {
+    string _stripSuffixImpl(string name) {
+        return name[$ - suffix.length .. $];
+    }
+    alias _stripSuffix = _stripSuffixImpl;
 }
 
 mixin template makeProperties(alias parent, string suffix, alias func = {}) {
-    import std.string;
-    import std.typetuple;
-    import hdf5.meta;
+    import std.string, std.typetuple, hdf5.meta;
     static if (__traits(compiles, __traits(allMembers, parent)))
-        mixin _makeProperties!(parent, suffix, func, Filter!(hasSuffix!suffix,
-                                                             __traits(allMembers, parent)));
+        mixin _makeProperties!(parent, suffix, func,
+            Filter!(_variableSuffixMatches!(parent, suffix),__traits(allMembers, parent)));
 }
 
 unittest {
