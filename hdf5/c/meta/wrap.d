@@ -59,13 +59,6 @@ unittest {
     static assert(!check!("foobar_g"));
 }
 
-template _stripSuffix(string suffix) {
-    string _stripSuffixImpl(string name) {
-        return name[$ - suffix.length .. $];
-    }
-    alias _stripSuffix = _stripSuffixImpl;
-}
-
 mixin template makeProperties(alias parent, string suffix, alias func = {}) {
     import std.string, std.typetuple, hdf5.meta;
     static if (__traits(compiles, __traits(allMembers, parent)))
