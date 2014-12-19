@@ -10,7 +10,7 @@ import hdf5.c.h5o;
 import hdf5.c.h5t;
 import hdf5.c.h5i;
 
-extern (C) nothrow:
+/* Constants, enums and aliases */
 
 enum H5G_storage_type_t {
     H5G_STORAGE_TYPE_UNKNOWN = -1,
@@ -18,6 +18,10 @@ enum H5G_storage_type_t {
     H5G_STORAGE_TYPE_COMPACT,
     H5G_STORAGE_TYPE_DENSE
 }
+
+/* Extern declarations, structs and globals */
+
+extern (C) nothrow:
 
 struct H5G_info_t {
     H5G_storage_type_t  storage_type;

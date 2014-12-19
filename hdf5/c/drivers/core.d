@@ -5,10 +5,8 @@ module hdf5.c.drivers.core;
 import hdf5.c.h5;
 import hdf5.c.h5i;
 
-const hid_t H5FD_CORE;
-
-shared static this() {
-    H5FD_CORE = H5FD_core_init();
+hid_t H5FD_CORE() @property {
+    return H5FD_core_init();
 }
 
 extern (C) nothrow:

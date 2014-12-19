@@ -6,14 +6,12 @@ import hdf5.c.h5;
 import hdf5.c.h5i;
 import hdf5.c.drivers.sec2;
 
-const hid_t H5FD_WINDOWS;
-
-shared static this() {
+hid_t H5FD_WINDOWS() @property {
     version (Windows) {
-        H5FD_WINDOWS = H5FD_windows_init();
+        return H5FD_windows_init();
     }
     else {
-        H5FD_WINDOWS = -1;
+        return -1;
     }
 }
 

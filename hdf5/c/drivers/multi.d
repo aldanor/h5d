@@ -7,10 +7,8 @@ import hdf5.c.h5i;
 import hdf5.c.h5p;
 import hdf5.c.h5fd;
 
-const hid_t H5FD_MULTI;
-
-shared static this() {
-    H5FD_MULTI = H5FD_multi_init();
+hid_t H5FD_MULTI() @property {
+    return H5FD_multi_init();
 }
 
 extern (C) nothrow:

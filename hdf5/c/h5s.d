@@ -5,7 +5,7 @@ module hdf5.c.h5s;
 import hdf5.c.h5;
 import hdf5.c.h5i;
 
-extern (C) nothrow:
+/* Constants, enums and aliases */
 
 enum hid_t H5S_ALL = 0;
 enum hsize_t H5S_UNLIMITED = cast(hssize_t) -1;
@@ -40,6 +40,10 @@ enum H5S_sel_type {
     H5S_SEL_ALL,
     H5S_SEL_N
 }
+
+/* Extern declarations, structs and globals */
+
+extern (C) nothrow:
 
 hid_t   H5Screate(H5S_class_t type);
 hid_t   H5Screate_simple(int rank, const hsize_t dims[], const hsize_t maxdims[]);

@@ -4,7 +4,7 @@ module hdf5.c.h5c;
 
 import hdf5.c.h5;
 
-extern (C) nothrow:
+/* Constants, enums and aliases */
 
 enum H5C_cache_incr_mode {
     H5C_incr__off = 0,

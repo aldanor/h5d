@@ -7,14 +7,12 @@ import hdf5.c.h5i;
 
 enum hid_t H5FD_MPIPOSIX = -1;
 
-const hid_t H5FD_MPIO;
-
-shared static this() {
+hid_t H5FD_MPIO() @property {
     version (H5_HAVE_PARALLEL) {
-        H5FD_MPIO = H5FD_mpio_init();
+        return H5FD_mpio_init();
     }
     else {
-        H5FD_MPIO = -1;
+        return -1;
     }
 }
 
@@ -42,6 +40,9 @@ enum H5FD_mpio_collective_opt_t {
 
 version (H5_HAVE_PARALLEL) {
     extern __gshared hbool_t H5FD_mpi_opt_types_g;
+
+    import hdf5.c.meta;
+    mixin makeProperties!(mixin(__MODULE__), "_g");
 
     hid_t   H5FD_mpio_init();
     void    H5FD_mpio_term();

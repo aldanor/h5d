@@ -7,6 +7,8 @@ import hdf5.c.h5i;
 import hdf5.c.h5o;
 import hdf5.c.h5t;
 
+/* Extern declarations, structs and globals */
+
 extern (C) nothrow:
 
 struct H5A_info_t {

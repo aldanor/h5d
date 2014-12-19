@@ -2,25 +2,7 @@
 
 module hdf5.c.h5;
 
-herr_t H5check() {
-    return H5check_version(H5_VERS_MAJOR, H5_VERS_MINOR, H5_VERS_RELEASE);
-}
-
-bool H5_VERSION_GE(uint major, uint minor, uint release) {
-    return
-        (((H5_VERS_MAJOR == major) && (H5_VERS_MINOR == minor) && (H5_VERS_RELEASE >= release)) ||
-        ((H5_VERS_MAJOR == major) && (H5_VERS_MINOR > minor)) ||
-        (H5_VERS_MAJOR > major));
-}
-
-bool H5_VERSION_LE(uint major, uint minor, uint release) {
-    return
-        (((H5_VERS_MAJOR == major) && (H5_VERS_MINOR == minor) && (H5_VERS_RELEASE <= release)) ||
-        ((H5_VERS_MAJOR == major) && (H5_VERS_MINOR < minor)) ||
-        (H5_VERS_MAJOR < major));
-}
-
-extern (C) nothrow:
+/* Constants, enums and aliases */
 
 enum H5_VERS_MAJOR      = 1;
 enum H5_VERS_MINOR      = 8;
@@ -59,6 +41,28 @@ enum H5_index_t {
     H5_INDEX_NAME,
     H5_INDEX_CRT_ORDER,
     H5_INDEX_N
+}
+
+/* Extern declarations, structs and globals */
+
+extern (C) nothrow:
+
+herr_t H5check() {
+    return H5check_version(H5_VERS_MAJOR, H5_VERS_MINOR, H5_VERS_RELEASE);
+}
+
+bool H5_VERSION_GE(uint major, uint minor, uint release) {
+    return
+        (((H5_VERS_MAJOR == major) && (H5_VERS_MINOR == minor) && (H5_VERS_RELEASE >= release)) ||
+        ((H5_VERS_MAJOR == major) && (H5_VERS_MINOR > minor)) ||
+        (H5_VERS_MAJOR > major));
+}
+
+bool H5_VERSION_LE(uint major, uint minor, uint release) {
+    return
+        (((H5_VERS_MAJOR == major) && (H5_VERS_MINOR == minor) && (H5_VERS_RELEASE <= release)) ||
+        ((H5_VERS_MAJOR == major) && (H5_VERS_MINOR < minor)) ||
+        (H5_VERS_MAJOR < major));
 }
 
 struct H5_ih_info_t {

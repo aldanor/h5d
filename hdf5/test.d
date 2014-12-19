@@ -16,4 +16,6 @@ unittest {
     writeln(H5FD_STDIO);
     writeln(H5FD_WINDOWS);
     writeln(H5FD_DIRECT);
+    writeln(H5F_ACC_RDONLY);
+    writeln(H5T_INTEL_I8);
 }

@@ -5,10 +5,8 @@ module hdf5.c.drivers.sec2;
 import hdf5.c.h5;
 import hdf5.c.h5i;
 
-const hid_t H5FD_SEC2;
-
-shared static this() {
-    H5FD_SEC2 = H5FD_sec2_init();
+hid_t H5FD_SEC2() @property {
+    return H5FD_sec2_init();
 }
 
 extern (C) nothrow:

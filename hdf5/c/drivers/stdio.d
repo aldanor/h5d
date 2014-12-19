@@ -5,10 +5,8 @@ module hdf5.c.drivers.stdio;
 import hdf5.c.h5;
 import hdf5.c.h5i;
 
-const hid_t H5FD_STDIO;
-
-shared static this() {
-    H5FD_STDIO = H5FD_stdio_init();
+hid_t H5FD_STDIO() @property {
+    return H5FD_stdio_init();
 }
 
 extern (C) nothrow:

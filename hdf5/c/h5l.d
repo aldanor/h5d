@@ -8,7 +8,7 @@ import hdf5.c.h5;
 import hdf5.c.h5i;
 import hdf5.c.h5t;
 
-extern (C) nothrow:
+/* Constants, enums and aliases */
 
 enum uint32_t H5L_MAX_LINK_NAME_LEN = -1;
 
@@ -24,8 +24,12 @@ enum H5L_type_t {
     H5L_TYPE_MAX = 255
 }
 
-alias H5L_TYPE_BUILTIN_MAX = H5L_type_t.H5L_TYPE_SOFT;
-alias H5L_TYPE_UD_MIN      = H5L_type_t.H5L_TYPE_EXTERNAL;
+enum H5L_TYPE_BUILTIN_MAX = H5L_type_t.H5L_TYPE_SOFT;
+enum H5L_TYPE_UD_MIN      = H5L_type_t.H5L_TYPE_EXTERNAL;
+
+/* Extern declarations, structs and globals */
+
+extern (C) nothrow:
 
 struct H5L_info_t {
     H5L_type_t  type;
@@ -37,26 +41,6 @@ struct H5L_info_t {
         size_t      val_size;
     }
 }
-
-alias H5L_create_func_t = herr_t function (const char *link_name, hid_t loc_group,
-                                           const void *lnkdata, size_t lnkdata_size,
-                                           hid_t lcpl_id);
-
-alias H5L_move_func_t = herr_t function (const char *new_name, hid_t new_loc,
-                                         const void *lnkdata, size_t lnkdata_size);
-
-alias H5L_copy_func_t = herr_t function (const char *new_name, hid_t new_loc,
-                                         const void *lnkdata, size_t lnkdata_size);
-
-alias H5L_traverse_func_t = hid_t function (const char *link_name, hid_t cur_group,
-                                            const void *lnkdata, size_t lnkdata_size,
-                                            hid_t lapl_id);
-
-alias H5L_delete_func_t = herr_t function (const char *link_name, hid_t file,
-                                           const void *lnkdata, size_t lnkdata_size);
-
-alias H5L_query_func_t = ssize_t function (const char *link_name, const void *lnkdata,
-                                           size_t lnkdata_size, void *buf , size_t buf_size);
 
 struct H5L_class_t {
     int                 version_; // was "version"
@@ -70,9 +54,22 @@ struct H5L_class_t {
     H5L_query_func_t    query_func;
 }
 
-alias H5L_iterate_t = herr_t function (hid_t group, const char *name, const H5L_info_t *info,
-                                       void *op_data);
-
+alias H5L_create_func_t    = herr_t function (const char *link_name, hid_t loc_group,
+                                              const void *lnkdata, size_t lnkdata_size,
+                                              hid_t lcpl_id);
+alias H5L_move_func_t      = herr_t function (const char *new_name, hid_t new_loc,
+                                              const void *lnkdata, size_t lnkdata_size);
+alias H5L_copy_func_t      = herr_t function (const char *new_name, hid_t new_loc,
+                                              const void *lnkdata, size_t lnkdata_size);
+alias H5L_traverse_func_t  = hid_t function (const char *link_name, hid_t cur_group,
+                                             const void *lnkdata, size_t lnkdata_size,
+                                             hid_t lapl_id);
+alias H5L_delete_func_t    =  herr_t function (const char *link_name, hid_t file,
+                                               const void *lnkdata, size_t lnkdata_size);
+alias H5L_query_func_t     = ssize_t function (const char *link_name, const void *lnkdata,
+                                               size_t lnkdata_size, void *buf , size_t buf_size);
+alias H5L_iterate_t        = herr_t function (hid_t group, const char *name,
+                                              const H5L_info_t *info, void *op_data);
 alias H5L_elink_traverse_t = herr_t function (const char *parent_file_name,
                                               const char *parent_group_name,
                                               const char *child_file_name,

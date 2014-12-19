@@ -6,33 +6,33 @@ import hdf5.c.h5;
 import hdf5.c.h5f;
 import hdf5.c.h5i;
 
-extern (C) nothrow:
+/* Constants, enums and aliases */
 
 enum int H5_HAVE_VFL      = 1;
 enum int H5FD_VFD_DEFAULT = 0;
 
 alias H5FD_mem_t = H5F_mem_t;
 
-alias H5FD_MEM_FHEAP_HDR        = H5FD_mem_t.H5FD_MEM_OHDR;
-alias H5FD_MEM_FHEAP_IBLOCK     = H5FD_mem_t.H5FD_MEM_OHDR;
-alias H5FD_MEM_FHEAP_DBLOCK     = H5FD_mem_t.H5FD_MEM_LHEAP;
-alias H5FD_MEM_FHEAP_HUGE_OBJ   = H5FD_mem_t.H5FD_MEM_DRAW;
+enum H5FD_MEM_FHEAP_HDR        = H5FD_mem_t.H5FD_MEM_OHDR;
+enum H5FD_MEM_FHEAP_IBLOCK     = H5FD_mem_t.H5FD_MEM_OHDR;
+enum H5FD_MEM_FHEAP_DBLOCK     = H5FD_mem_t.H5FD_MEM_LHEAP;
+enum H5FD_MEM_FHEAP_HUGE_OBJ   = H5FD_mem_t.H5FD_MEM_DRAW;
 
-alias H5FD_MEM_FSPACE_HDR       = H5FD_mem_t.H5FD_MEM_OHDR;
-alias H5FD_MEM_FSPACE_SINFO     = H5FD_mem_t.H5FD_MEM_LHEAP;
+enum H5FD_MEM_FSPACE_HDR       = H5FD_mem_t.H5FD_MEM_OHDR;
+enum H5FD_MEM_FSPACE_SINFO     = H5FD_mem_t.H5FD_MEM_LHEAP;
 
-alias H5FD_MEM_SOHM_TABLE       = H5FD_mem_t.H5FD_MEM_OHDR;
-alias H5FD_MEM_SOHM_INDEX       = H5FD_mem_t.H5FD_MEM_BTREE;
+enum H5FD_MEM_SOHM_TABLE       = H5FD_mem_t.H5FD_MEM_OHDR;
+enum H5FD_MEM_SOHM_INDEX       = H5FD_mem_t.H5FD_MEM_BTREE;
 
-alias H5FD_MEM_EARRAY_HDR       = H5FD_mem_t.H5FD_MEM_OHDR;
-alias H5FD_MEM_EARRAY_IBLOCK    = H5FD_mem_t.H5FD_MEM_OHDR;
-alias H5FD_MEM_EARRAY_SBLOCK    = H5FD_mem_t.H5FD_MEM_BTREE;
-alias H5FD_MEM_EARRAY_DBLOCK    = H5FD_mem_t.H5FD_MEM_LHEAP;
-alias H5FD_MEM_EARRAY_DBLK_PAGE = H5FD_mem_t.H5FD_MEM_LHEAP;
+enum H5FD_MEM_EARRAY_HDR       = H5FD_mem_t.H5FD_MEM_OHDR;
+enum H5FD_MEM_EARRAY_IBLOCK    = H5FD_mem_t.H5FD_MEM_OHDR;
+enum H5FD_MEM_EARRAY_SBLOCK    = H5FD_mem_t.H5FD_MEM_BTREE;
+enum H5FD_MEM_EARRAY_DBLOCK    = H5FD_mem_t.H5FD_MEM_LHEAP;
+enum H5FD_MEM_EARRAY_DBLK_PAGE = H5FD_mem_t.H5FD_MEM_LHEAP;
 
-alias H5FD_MEM_FARRAY_HDR       = H5FD_mem_t.H5FD_MEM_OHDR;
-alias H5FD_MEM_FARRAY_DBLOCK    = H5FD_mem_t.H5FD_MEM_LHEAP;
-alias H5FD_MEM_FARRAY_DBLK_PAGE = H5FD_mem_t.H5FD_MEM_LHEAP;
+enum H5FD_MEM_FARRAY_HDR       = H5FD_mem_t.H5FD_MEM_OHDR;
+enum H5FD_MEM_FARRAY_DBLOCK    = H5FD_mem_t.H5FD_MEM_LHEAP;
+enum H5FD_MEM_FARRAY_DBLK_PAGE = H5FD_mem_t.H5FD_MEM_LHEAP;
 
 enum uint[] H5FD_FLMAP_SINGLE = [
     H5FD_mem_t.H5FD_MEM_SUPER,
@@ -78,6 +78,21 @@ enum uint H5FD_FEAT_HAS_MPI                      = 0x00000100;
 enum uint H5FD_FEAT_ALLOCATE_EARLY               = 0x00000200;
 enum uint H5FD_FEAT_ALLOW_FILE_IMAGE             = 0x00000400;
 enum uint H5FD_FEAT_CAN_USE_FILE_IMAGE_CALLBACKS = 0x00000800;
+
+enum H5FD_file_image_op_t {
+    H5FD_FILE_IMAGE_OP_NO_OP = 0,
+    H5FD_FILE_IMAGE_OP_PROPERTY_LIST_SET,
+    H5FD_FILE_IMAGE_OP_PROPERTY_LIST_COPY,
+    H5FD_FILE_IMAGE_OP_PROPERTY_LIST_GET,
+    H5FD_FILE_IMAGE_OP_PROPERTY_LIST_CLOSE,
+    H5FD_FILE_IMAGE_OP_FILE_OPEN,
+    H5FD_FILE_IMAGE_OP_FILE_RESIZE,
+    H5FD_FILE_IMAGE_OP_FILE_CLOSE
+}
+
+/* Extern declarations, structs and globals */
+
+extern (C) nothrow:
 
 struct H5FD_class_t {
     const char *name;
@@ -132,17 +147,6 @@ struct H5FD_t {
     haddr_t             base_addr;
     hsize_t             threshold;
     hsize_t             alignment;
-}
-
-enum H5FD_file_image_op_t {
-    H5FD_FILE_IMAGE_OP_NO_OP = 0,
-    H5FD_FILE_IMAGE_OP_PROPERTY_LIST_SET,
-    H5FD_FILE_IMAGE_OP_PROPERTY_LIST_COPY,
-    H5FD_FILE_IMAGE_OP_PROPERTY_LIST_GET,
-    H5FD_FILE_IMAGE_OP_PROPERTY_LIST_CLOSE,
-    H5FD_FILE_IMAGE_OP_FILE_OPEN,
-    H5FD_FILE_IMAGE_OP_FILE_RESIZE,
-    H5FD_FILE_IMAGE_OP_FILE_CLOSE
 }
 
 struct H5FD_file_image_callbacks_t {

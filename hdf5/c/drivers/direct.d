@@ -5,14 +5,12 @@ module hdf5.c.drivers.direct;
 import hdf5.c.h5;
 import hdf5.c.h5i;
 
-const hid_t H5FD_DIRECT;
-
-shared static this() {
+hid_t H5FD_DIRECT() @property {
     version (H5_HAVE_DIRECT) {
-        H5FD_DIRECT = H5FD_direct_init();
+        return H5FD_direct_init();
     }
     else {
-        H5FD_DIRECT = -1;
+        return -1;
     }
 }
 

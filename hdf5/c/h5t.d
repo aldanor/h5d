@@ -8,11 +8,7 @@ import core.stdc.limits;
 import hdf5.c.h5;
 import hdf5.c.h5i;
 
-shared static this() {
-    H5open();
-}
-
-extern (C) nothrow:
+/* Constants, enums and aliases */
 
 enum H5T_class_t {
     H5T_NO_CLASS = -1,
@@ -117,13 +113,6 @@ enum H5T_bkg_t {
     H5T_BKG_YES     = 2
 }
 
-struct H5T_cdata_t {
-    H5T_cmd_t   command;
-    H5T_bkg_t   need_bkg;
-    hbool_t     recalc;
-    void       *priv;
-}
-
 enum H5T_pers_t {
     H5T_PERS_DONTCARE = -1,
     H5T_PERS_HARD,
@@ -152,173 +141,133 @@ enum H5T_conv_ret_t {
     H5T_CONV_HANDLED
 }
 
+enum size_t H5T_VARIABLE = -1;
+
+enum uint H5T_OPAQUE_TAG_MAX = 256;
+
+/* Extern declarations, structs and globals */
+
+extern (C) nothrow:
+
+struct H5T_cdata_t {
+    H5T_cmd_t   command;
+    H5T_bkg_t   need_bkg;
+    hbool_t     recalc;
+    void       *priv;
+}
+
 struct hvl_t {
     size_t  len;
     void   *p;
 }
 
-enum size_t H5T_VARIABLE = -1;
-
-enum uint H5T_OPAQUE_TAG_MAX = 256;
-
-alias H5T_conv_t = herr_t function (hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata,
-                                    size_t nelmts, size_t buf_stride, size_t bkg_stride,
-                                    void *buf, void *bkg, hid_t dset_xfer_plist);
-
+alias H5T_conv_t             = herr_t function (hid_t src_id, hid_t dst_id, H5T_cdata_t *cdata,
+                                                size_t nelmts, size_t buf_stride, size_t bkg_stride,
+                                                void *buf, void *bkg, hid_t dset_xfer_plist);
 alias H5T_conv_except_func_t = H5T_conv_ret_t function (H5T_conv_except_t except_type,
                                                         hid_t src_id, hid_t dst_id,
                                                         void *src_buf, void *dst_buf,
                                                         void *user_data);
 
-extern __gshared hid_t H5T_IEEE_F32BE_g;        alias H5T_IEEE_F32BE = H5T_IEEE_F32BE_g;
-extern __gshared hid_t H5T_IEEE_F32LE_g;        alias H5T_IEEE_F32LE = H5T_IEEE_F32LE_g;
-extern __gshared hid_t H5T_IEEE_F64BE_g;        alias H5T_IEEE_F64BE = H5T_IEEE_F64BE_g;
-extern __gshared hid_t H5T_IEEE_F64LE_g;        alias H5T_IEEE_F64LE = H5T_IEEE_F64LE_g;
+package {
+    extern __gshared hid_t H5T_IEEE_F32BE_g;
+    extern __gshared hid_t H5T_IEEE_F32LE_g;
+    extern __gshared hid_t H5T_IEEE_F64BE_g;
+    extern __gshared hid_t H5T_IEEE_F64LE_g;
 
-extern __gshared hid_t H5T_STD_I8BE_g;          alias H5T_STD_I8BE = H5T_STD_I8BE_g;
-extern __gshared hid_t H5T_STD_I8LE_g;          alias H5T_STD_I8LE = H5T_STD_I8LE_g;
-extern __gshared hid_t H5T_STD_I16BE_g;         alias H5T_STD_I16BE = H5T_STD_I16BE_g;
-extern __gshared hid_t H5T_STD_I16LE_g;         alias H5T_STD_I16LE = H5T_STD_I16LE_g;
-extern __gshared hid_t H5T_STD_I32BE_g;         alias H5T_STD_I32BE = H5T_STD_I32BE_g;
-extern __gshared hid_t H5T_STD_I32LE_g;         alias H5T_STD_I32LE = H5T_STD_I32LE_g;
-extern __gshared hid_t H5T_STD_I64BE_g;         alias H5T_STD_I64BE = H5T_STD_I64BE_g;
-extern __gshared hid_t H5T_STD_I64LE_g;         alias H5T_STD_I64LE = H5T_STD_I64LE_g;
-extern __gshared hid_t H5T_STD_U8BE_g;          alias H5T_STD_U8BE = H5T_STD_U8BE_g;
-extern __gshared hid_t H5T_STD_U8LE_g;          alias H5T_STD_U8LE = H5T_STD_U8LE_g;
-extern __gshared hid_t H5T_STD_U16BE_g;         alias H5T_STD_U16BE = H5T_STD_U16BE_g;
-extern __gshared hid_t H5T_STD_U16LE_g;         alias H5T_STD_U16LE = H5T_STD_U16LE_g;
-extern __gshared hid_t H5T_STD_U32BE_g;         alias H5T_STD_U32BE = H5T_STD_U32BE_g;
-extern __gshared hid_t H5T_STD_U32LE_g;         alias H5T_STD_U32LE = H5T_STD_U32LE_g;
-extern __gshared hid_t H5T_STD_U64BE_g;         alias H5T_STD_U64BE = H5T_STD_U64BE_g;
-extern __gshared hid_t H5T_STD_U64LE_g;         alias H5T_STD_U64LE = H5T_STD_U64LE_g;
-extern __gshared hid_t H5T_STD_B8BE_g;          alias H5T_STD_B8BE = H5T_STD_B8BE_g;
-extern __gshared hid_t H5T_STD_B8LE_g;          alias H5T_STD_B8LE = H5T_STD_B8LE_g;
-extern __gshared hid_t H5T_STD_B16BE_g;         alias H5T_STD_B16BE = H5T_STD_B16BE_g;
-extern __gshared hid_t H5T_STD_B16LE_g;         alias H5T_STD_B16LE = H5T_STD_B16LE_g;
-extern __gshared hid_t H5T_STD_B32BE_g;         alias H5T_STD_B32BE = H5T_STD_B32BE_g;
-extern __gshared hid_t H5T_STD_B32LE_g;         alias H5T_STD_B32LE = H5T_STD_B32LE_g;
-extern __gshared hid_t H5T_STD_B64BE_g;         alias H5T_STD_B64BE = H5T_STD_B64BE_g;
-extern __gshared hid_t H5T_STD_B64LE_g;         alias H5T_STD_B64LE = H5T_STD_B64LE_g;
-extern __gshared hid_t H5T_STD_REF_OBJ_g;       alias H5T_STD_REF_OBJ = H5T_STD_REF_OBJ_g;
-extern __gshared hid_t H5T_STD_REF_DSETREG_g;   alias H5T_STD_REF_DSETREG = H5T_STD_REF_DSETREG_g;
+    extern __gshared hid_t H5T_STD_I8BE_g;
+    extern __gshared hid_t H5T_STD_I8LE_g;
+    extern __gshared hid_t H5T_STD_I16BE_g;
+    extern __gshared hid_t H5T_STD_I16LE_g;
+    extern __gshared hid_t H5T_STD_I32BE_g;
+    extern __gshared hid_t H5T_STD_I32LE_g;
+    extern __gshared hid_t H5T_STD_I64BE_g;
+    extern __gshared hid_t H5T_STD_I64LE_g;
+    extern __gshared hid_t H5T_STD_U8BE_g;
+    extern __gshared hid_t H5T_STD_U8LE_g;
+    extern __gshared hid_t H5T_STD_U16BE_g;
+    extern __gshared hid_t H5T_STD_U16LE_g;
+    extern __gshared hid_t H5T_STD_U32BE_g;
+    extern __gshared hid_t H5T_STD_U32LE_g;
+    extern __gshared hid_t H5T_STD_U64BE_g;
+    extern __gshared hid_t H5T_STD_U64LE_g;
+    extern __gshared hid_t H5T_STD_B8BE_g;
+    extern __gshared hid_t H5T_STD_B8LE_g;
+    extern __gshared hid_t H5T_STD_B16BE_g;
+    extern __gshared hid_t H5T_STD_B16LE_g;
+    extern __gshared hid_t H5T_STD_B32BE_g;
+    extern __gshared hid_t H5T_STD_B32LE_g;
+    extern __gshared hid_t H5T_STD_B64BE_g;
+    extern __gshared hid_t H5T_STD_B64LE_g;
+    extern __gshared hid_t H5T_STD_REF_OBJ_g;
+    extern __gshared hid_t H5T_STD_REF_DSETREG_g;
 
-extern __gshared hid_t H5T_UNIX_D32BE_g;        alias H5T_UNIX_D32BE = H5T_UNIX_D32BE_g;
-extern __gshared hid_t H5T_UNIX_D32LE_g;        alias H5T_UNIX_D32LE = H5T_UNIX_D32LE_g;
-extern __gshared hid_t H5T_UNIX_D64BE_g;        alias H5T_UNIX_D64BE = H5T_UNIX_D64BE_g;
-extern __gshared hid_t H5T_UNIX_D64LE_g;        alias H5T_UNIX_D64LE = H5T_UNIX_D64LE_g;
+    extern __gshared hid_t H5T_UNIX_D32BE_g;
+    extern __gshared hid_t H5T_UNIX_D32LE_g;
+    extern __gshared hid_t H5T_UNIX_D64BE_g;
+    extern __gshared hid_t H5T_UNIX_D64LE_g;
 
-extern __gshared hid_t H5T_C_S1_g;              alias H5T_C_S1 = H5T_C_S1_g;
+    extern __gshared hid_t H5T_C_S1_g;
 
-extern __gshared hid_t H5T_FORTRAN_S1_g;        alias H5T_FORTRAN_S1 = H5T_FORTRAN_S1_g;
+    extern __gshared hid_t H5T_FORTRAN_S1_g;
 
-alias H5T_INTEL_I8  = H5T_STD_I8LE;
-alias H5T_INTEL_I16 = H5T_STD_I16LE;
-alias H5T_INTEL_I32 = H5T_STD_I32LE;
-alias H5T_INTEL_I64 = H5T_STD_I64LE;
-alias H5T_INTEL_U8  = H5T_STD_U8LE;
-alias H5T_INTEL_U16 = H5T_STD_U16LE;
-alias H5T_INTEL_U32 = H5T_STD_U32LE;
-alias H5T_INTEL_U64 = H5T_STD_U64LE;
-alias H5T_INTEL_B8  = H5T_STD_B8LE;
-alias H5T_INTEL_B16 = H5T_STD_B16LE;
-alias H5T_INTEL_B32 = H5T_STD_B32LE;
-alias H5T_INTEL_B64 = H5T_STD_B64LE;
-alias H5T_INTEL_F32 = H5T_IEEE_F32LE;
-alias H5T_INTEL_F64 = H5T_IEEE_F64LE;
+    // if sizeof(c_long_double) != 0
+    extern __gshared hid_t H5T_NATIVE_LDOUBLE_g;
 
-alias H5T_ALPHA_I8  = H5T_STD_I8LE;
-alias H5T_ALPHA_I16 = H5T_STD_I16LE;
-alias H5T_ALPHA_I32 = H5T_STD_I32LE;
-alias H5T_ALPHA_I64 = H5T_STD_I64LE;
-alias H5T_ALPHA_U8  = H5T_STD_U8LE;
-alias H5T_ALPHA_U16 = H5T_STD_U16LE;
-alias H5T_ALPHA_U32 = H5T_STD_U32LE;
-alias H5T_ALPHA_U64 = H5T_STD_U64LE;
-alias H5T_ALPHA_B8  = H5T_STD_B8LE;
-alias H5T_ALPHA_B16 = H5T_STD_B16LE;
-alias H5T_ALPHA_B32 = H5T_STD_B32LE;
-alias H5T_ALPHA_B64 = H5T_STD_B64LE;
-alias H5T_ALPHA_F32 = H5T_IEEE_F32LE;
-alias H5T_ALPHA_F64 = H5T_IEEE_F64LE;
+    extern __gshared hid_t H5T_VAX_F32_g;
+    extern __gshared hid_t H5T_VAX_F64_g;
 
-alias H5T_MIPS_I8   = H5T_STD_I8BE;
-alias H5T_MIPS_I16  = H5T_STD_I16BE;
-alias H5T_MIPS_I32  = H5T_STD_I32BE;
-alias H5T_MIPS_I64  = H5T_STD_I64BE;
-alias H5T_MIPS_U8   = H5T_STD_U8BE;
-alias H5T_MIPS_U16  = H5T_STD_U16BE;
-alias H5T_MIPS_U32  = H5T_STD_U32BE;
-alias H5T_MIPS_U64  = H5T_STD_U64BE;
-alias H5T_MIPS_B8   = H5T_STD_B8BE;
-alias H5T_MIPS_B16  = H5T_STD_B16BE;
-alias H5T_MIPS_B32  = H5T_STD_B32BE;
-alias H5T_MIPS_B64  = H5T_STD_B64BE;
-alias H5T_MIPS_F32  = H5T_IEEE_F32BE;
-alias H5T_MIPS_F64  = H5T_IEEE_F64BE;
+    extern __gshared hid_t H5T_NATIVE_SCHAR_g;
+    extern __gshared hid_t H5T_NATIVE_UCHAR_g;
+    extern __gshared hid_t H5T_NATIVE_SHORT_g;
+    extern __gshared hid_t H5T_NATIVE_USHORT_g;
+    extern __gshared hid_t H5T_NATIVE_INT_g;
+    extern __gshared hid_t H5T_NATIVE_UINT_g;
+    extern __gshared hid_t H5T_NATIVE_LONG_g;
+    extern __gshared hid_t H5T_NATIVE_ULONG_g;
+    extern __gshared hid_t H5T_NATIVE_LLONG_g;
+    extern __gshared hid_t H5T_NATIVE_ULLONG_g;
+    extern __gshared hid_t H5T_NATIVE_FLOAT_g;
+    extern __gshared hid_t H5T_NATIVE_DOUBLE_g;
+    extern __gshared hid_t H5T_NATIVE_B8_g;
+    extern __gshared hid_t H5T_NATIVE_B16_g;
+    extern __gshared hid_t H5T_NATIVE_B32_g;
+    extern __gshared hid_t H5T_NATIVE_B64_g;
+    extern __gshared hid_t H5T_NATIVE_OPAQUE_g;
+    extern __gshared hid_t H5T_NATIVE_HADDR_g;
+    extern __gshared hid_t H5T_NATIVE_HSIZE_g;
+    extern __gshared hid_t H5T_NATIVE_HSSIZE_g;
+    extern __gshared hid_t H5T_NATIVE_HERR_g;
+    extern __gshared hid_t H5T_NATIVE_HBOOL_g;
 
-static if (CHAR_MIN) {
-    alias H5T_NATIVE_CHAR = H5T_NATIVE_SCHAR;
+    extern __gshared hid_t H5T_NATIVE_INT8_g;
+    extern __gshared hid_t H5T_NATIVE_UINT8_g;
+    extern __gshared hid_t H5T_NATIVE_INT_LEAST8_g;
+    extern __gshared hid_t H5T_NATIVE_UINT_LEAST8_g;
+    extern __gshared hid_t H5T_NATIVE_INT_FAST8_g;
+    extern __gshared hid_t H5T_NATIVE_UINT_FAST8_g;
+
+    extern __gshared hid_t H5T_NATIVE_INT16_g;
+    extern __gshared hid_t H5T_NATIVE_UINT16_g;
+    extern __gshared hid_t H5T_NATIVE_INT_LEAST16_g;
+    extern __gshared hid_t H5T_NATIVE_UINT_LEAST16_g;
+    extern __gshared hid_t H5T_NATIVE_INT_FAST16_g;
+    extern __gshared hid_t H5T_NATIVE_UINT_FAST16_g;
+
+    extern __gshared hid_t H5T_NATIVE_INT32_g;
+    extern __gshared hid_t H5T_NATIVE_UINT32_g;
+    extern __gshared hid_t H5T_NATIVE_INT_LEAST32_g;
+    extern __gshared hid_t H5T_NATIVE_UINT_LEAST32_g;
+    extern __gshared hid_t H5T_NATIVE_INT_FAST32_g;
+    extern __gshared hid_t H5T_NATIVE_UINT_FAST32_g;
+
+    extern __gshared hid_t H5T_NATIVE_INT64_g;
+    extern __gshared hid_t H5T_NATIVE_UINT64_g;
+    extern __gshared hid_t H5T_NATIVE_INT_LEAST64_g;
+    extern __gshared hid_t H5T_NATIVE_UINT_LEAST64_g;
+    extern __gshared hid_t H5T_NATIVE_INT_FAST64_g;
+    extern __gshared hid_t H5T_NATIVE_UINT_FAST64_g;
 }
-else {
-    alias H5T_NATIVE_CHAR = H5T_NATIVE_UCHAR;
-}
-
-// if sizeof(c_long_double) != 0
-extern __gshared hid_t H5T_NATIVE_LDOUBLE_g;        alias H5T_NATIVE_LDOUBLE = H5T_NATIVE_LDOUBLE_g;
-
-extern __gshared hid_t H5T_VAX_F32_g;               alias H5T_VAX_F32 = H5T_VAX_F32_g;
-extern __gshared hid_t H5T_VAX_F64_g;               alias H5T_VAX_F64 = H5T_VAX_F64_g;
-
-extern __gshared hid_t H5T_NATIVE_SCHAR_g;          alias H5T_NATIVE_SCHAR = H5T_NATIVE_SCHAR_g;
-extern __gshared hid_t H5T_NATIVE_UCHAR_g;          alias H5T_NATIVE_UCHAR = H5T_NATIVE_UCHAR_g;
-extern __gshared hid_t H5T_NATIVE_SHORT_g;          alias H5T_NATIVE_SHORT = H5T_NATIVE_SHORT_g;
-extern __gshared hid_t H5T_NATIVE_USHORT_g;         alias H5T_NATIVE_USHORT = H5T_NATIVE_USHORT_g;
-extern __gshared hid_t H5T_NATIVE_INT_g;            alias H5T_NATIVE_INT = H5T_NATIVE_INT_g;
-extern __gshared hid_t H5T_NATIVE_UINT_g;           alias H5T_NATIVE_UINT = H5T_NATIVE_UINT_g;
-extern __gshared hid_t H5T_NATIVE_LONG_g;           alias H5T_NATIVE_LONG = H5T_NATIVE_LONG_g;
-extern __gshared hid_t H5T_NATIVE_ULONG_g;          alias H5T_NATIVE_ULONG = H5T_NATIVE_ULONG_g;
-extern __gshared hid_t H5T_NATIVE_LLONG_g;          alias H5T_NATIVE_LLONG = H5T_NATIVE_LLONG_g;
-extern __gshared hid_t H5T_NATIVE_ULLONG_g;         alias H5T_NATIVE_ULLONG = H5T_NATIVE_ULLONG_g;
-extern __gshared hid_t H5T_NATIVE_FLOAT_g;          alias H5T_NATIVE_FLOAT = H5T_NATIVE_FLOAT_g;
-extern __gshared hid_t H5T_NATIVE_DOUBLE_g;         alias H5T_NATIVE_DOUBLE = H5T_NATIVE_DOUBLE_g;
-extern __gshared hid_t H5T_NATIVE_B8_g;             alias H5T_NATIVE_B8 = H5T_NATIVE_B8_g;
-extern __gshared hid_t H5T_NATIVE_B16_g;            alias H5T_NATIVE_B16 = H5T_NATIVE_B16_g;
-extern __gshared hid_t H5T_NATIVE_B32_g;            alias H5T_NATIVE_B32 = H5T_NATIVE_B32_g;
-extern __gshared hid_t H5T_NATIVE_B64_g;            alias H5T_NATIVE_B64 = H5T_NATIVE_B64_g;
-extern __gshared hid_t H5T_NATIVE_OPAQUE_g;         alias H5T_NATIVE_OPAQUE = H5T_NATIVE_OPAQUE_g;
-extern __gshared hid_t H5T_NATIVE_HADDR_g;          alias H5T_NATIVE_HADDR = H5T_NATIVE_HADDR_g;
-extern __gshared hid_t H5T_NATIVE_HSIZE_g;          alias H5T_NATIVE_HSIZE = H5T_NATIVE_HSIZE_g;
-extern __gshared hid_t H5T_NATIVE_HSSIZE_g;         alias H5T_NATIVE_HSSIZE = H5T_NATIVE_HSSIZE_g;
-extern __gshared hid_t H5T_NATIVE_HERR_g;           alias H5T_NATIVE_HERR = H5T_NATIVE_HERR_g;
-extern __gshared hid_t H5T_NATIVE_HBOOL_g;          alias H5T_NATIVE_HBOOL = H5T_NATIVE_HBOOL_g;
-
-extern __gshared hid_t H5T_NATIVE_INT8_g;           alias H5T_NATIVE_INT8 = H5T_NATIVE_INT8_g;
-extern __gshared hid_t H5T_NATIVE_UINT8_g;          alias H5T_NATIVE_UINT8 = H5T_NATIVE_UINT8_g;
-extern __gshared hid_t H5T_NATIVE_INT_LEAST8_g;     alias H5T_NATIVE_INT_LEAST8 = H5T_NATIVE_INT_LEAST8_g;
-extern __gshared hid_t H5T_NATIVE_UINT_LEAST8_g;    alias H5T_NATIVE_UINT_LEAST8 = H5T_NATIVE_UINT_LEAST8_g;
-extern __gshared hid_t H5T_NATIVE_INT_FAST8_g;      alias H5T_NATIVE_INT_FAST8 = H5T_NATIVE_INT_FAST8_g;
-extern __gshared hid_t H5T_NATIVE_UINT_FAST8_g;     alias H5T_NATIVE_UINT_FAST8 = H5T_NATIVE_UINT_FAST8_g;
-
-extern __gshared hid_t H5T_NATIVE_INT16_g;          alias H5T_NATIVE_INT16 = H5T_NATIVE_INT16_g;
-extern __gshared hid_t H5T_NATIVE_UINT16_g;         alias H5T_NATIVE_UINT16 = H5T_NATIVE_UINT16_g;
-extern __gshared hid_t H5T_NATIVE_INT_LEAST16_g;    alias H5T_NATIVE_INT_LEAST16 = H5T_NATIVE_INT_LEAST16_g;
-extern __gshared hid_t H5T_NATIVE_UINT_LEAST16_g;   alias H5T_NATIVE_UINT_LEAST16 = H5T_NATIVE_UINT_LEAST16_g;
-extern __gshared hid_t H5T_NATIVE_INT_FAST16_g;     alias H5T_NATIVE_INT_FAST16 = H5T_NATIVE_INT_FAST16_g;
-extern __gshared hid_t H5T_NATIVE_UINT_FAST16_g;    alias H5T_NATIVE_UINT_FAST16 = H5T_NATIVE_UINT_FAST16_g;
-
-extern __gshared hid_t H5T_NATIVE_INT32_g;          alias H5T_NATIVE_INT32 = H5T_NATIVE_INT32_g;
-extern __gshared hid_t H5T_NATIVE_UINT32_g;         alias H5T_NATIVE_UINT32 = H5T_NATIVE_UINT32_g;
-extern __gshared hid_t H5T_NATIVE_INT_LEAST32_g;    alias H5T_NATIVE_INT_LEAST32 = H5T_NATIVE_INT_LEAST32_g;
-extern __gshared hid_t H5T_NATIVE_UINT_LEAST32_g;   alias H5T_NATIVE_UINT_LEAST32 = H5T_NATIVE_UINT_LEAST32_g;
-extern __gshared hid_t H5T_NATIVE_INT_FAST32_g;     alias H5T_NATIVE_INT_FAST32 = H5T_NATIVE_INT_FAST32_g;
-extern __gshared hid_t H5T_NATIVE_UINT_FAST32_g;    alias H5T_NATIVE_UINT_FAST32 = H5T_NATIVE_UINT_FAST32_g;
-
-extern __gshared hid_t H5T_NATIVE_INT64_g;          alias H5T_NATIVE_INT64 = H5T_NATIVE_INT64_g;
-extern __gshared hid_t H5T_NATIVE_UINT64_g;         alias H5T_NATIVE_UINT64 = H5T_NATIVE_UINT64_g;
-extern __gshared hid_t H5T_NATIVE_INT_LEAST64_g;    alias H5T_NATIVE_INT_LEAST64 = H5T_NATIVE_INT_LEAST64_g;
-extern __gshared hid_t H5T_NATIVE_UINT_LEAST64_g;   alias H5T_NATIVE_UINT_LEAST64 = H5T_NATIVE_UINT_LEAST64_g;
-extern __gshared hid_t H5T_NATIVE_INT_FAST64_g;     alias H5T_NATIVE_INT_FAST64 = H5T_NATIVE_INT_FAST64_g;
-extern __gshared hid_t H5T_NATIVE_UINT_FAST64_g;    alias H5T_NATIVE_UINT_FAST64 = H5T_NATIVE_UINT_FAST64_g;
 
 hid_t   H5Tcreate(H5T_class_t type, size_t size);
 hid_t   H5Tcopy(hid_t type_id);
@@ -398,3 +347,62 @@ H5T_conv_t  H5Tfind(hid_t src_id, hid_t dst_id, H5T_cdata_t **pcdata);
 htri_t  H5Tcompiler_conv(hid_t src_id, hid_t dst_id);
 herr_t  H5Tconvert(hid_t src_id, hid_t dst_id, size_t nelmts, void *buf, void *background,
                    hid_t plist_id);
+
+/* Register properties */
+
+import hdf5.c.meta;
+mixin makeProperties!(mixin(__MODULE__), "_g", H5open);
+
+/* Additional aliases */
+
+alias H5T_INTEL_I8  = H5T_STD_I8LE;
+alias H5T_INTEL_I16 = H5T_STD_I16LE;
+alias H5T_INTEL_I32 = H5T_STD_I32LE;
+alias H5T_INTEL_I64 = H5T_STD_I64LE;
+alias H5T_INTEL_U8  = H5T_STD_U8LE;
+alias H5T_INTEL_U16 = H5T_STD_U16LE;
+alias H5T_INTEL_U32 = H5T_STD_U32LE;
+alias H5T_INTEL_U64 = H5T_STD_U64LE;
+alias H5T_INTEL_B8  = H5T_STD_B8LE;
+alias H5T_INTEL_B16 = H5T_STD_B16LE;
+alias H5T_INTEL_B32 = H5T_STD_B32LE;
+alias H5T_INTEL_B64 = H5T_STD_B64LE;
+alias H5T_INTEL_F32 = H5T_IEEE_F32LE;
+alias H5T_INTEL_F64 = H5T_IEEE_F64LE;
+
+alias H5T_ALPHA_I8  = H5T_STD_I8LE;
+alias H5T_ALPHA_I16 = H5T_STD_I16LE;
+alias H5T_ALPHA_I32 = H5T_STD_I32LE;
+alias H5T_ALPHA_I64 = H5T_STD_I64LE;
+alias H5T_ALPHA_U8  = H5T_STD_U8LE;
+alias H5T_ALPHA_U16 = H5T_STD_U16LE;
+alias H5T_ALPHA_U32 = H5T_STD_U32LE;
+alias H5T_ALPHA_U64 = H5T_STD_U64LE;
+alias H5T_ALPHA_B8  = H5T_STD_B8LE;
+alias H5T_ALPHA_B16 = H5T_STD_B16LE;
+alias H5T_ALPHA_B32 = H5T_STD_B32LE;
+alias H5T_ALPHA_B64 = H5T_STD_B64LE;
+alias H5T_ALPHA_F32 = H5T_IEEE_F32LE;
+alias H5T_ALPHA_F64 = H5T_IEEE_F64LE;
+
+alias H5T_MIPS_I8   = H5T_STD_I8BE;
+alias H5T_MIPS_I16  = H5T_STD_I16BE;
+alias H5T_MIPS_I32  = H5T_STD_I32BE;
+alias H5T_MIPS_I64  = H5T_STD_I64BE;
+alias H5T_MIPS_U8   = H5T_STD_U8BE;
+alias H5T_MIPS_U16  = H5T_STD_U16BE;
+alias H5T_MIPS_U32  = H5T_STD_U32BE;
+alias H5T_MIPS_U64  = H5T_STD_U64BE;
+alias H5T_MIPS_B8   = H5T_STD_B8BE;
+alias H5T_MIPS_B16  = H5T_STD_B16BE;
+alias H5T_MIPS_B32  = H5T_STD_B32BE;
+alias H5T_MIPS_B64  = H5T_STD_B64BE;
+alias H5T_MIPS_F32  = H5T_IEEE_F32BE;
+alias H5T_MIPS_F64  = H5T_IEEE_F64BE;
+
+static if (CHAR_MIN) {
+    alias H5T_NATIVE_CHAR = H5T_NATIVE_SCHAR;
+}
+else {
+    alias H5T_NATIVE_CHAR = H5T_NATIVE_UCHAR;
+}

@@ -6,20 +6,18 @@ import hdf5.c.h5;
 import hdf5.c.h5ac;
 import hdf5.c.h5i;
 
-shared static this() {
-    H5check();
+/* Constants, enums and aliases */
+
+package {
+    enum uint H5F_ACC_RDONLY_g  = 0x0000u;
+    enum uint H5F_ACC_RDWR_g    = 0x0001u;
+    enum uint H5F_ACC_TRUNC_g   = 0x0002u;
+    enum uint H5F_ACC_EXCL_g    = 0x0004u;
+    enum uint H5F_ACC_DEBUG_g   = 0x0008u;
+    enum uint H5F_ACC_CREAT_g   = 0x0010u;
+
+    enum uint H5F_ACC_DEFAULT_g = 0xffffu;
 }
-
-extern (C) nothrow:
-
-enum uint H5F_ACC_RDONLY   = 0x0000u;
-enum uint H5F_ACC_RDWR     = 0x0001u;
-enum uint H5F_ACC_TRUNC    = 0x0002u;
-enum uint H5F_ACC_EXCL     = 0x0004u;
-enum uint H5F_ACC_DEBUG    = 0x0008u;
-enum uint H5F_ACC_CREAT    = 0x0010u;
-
-enum uint H5F_ACC_DEFAULT  = 0xffffu;
 
 enum uint H5F_OBJ_FILE     = 0x0001u;
 enum uint H5F_OBJ_DATASET  = 0x0002u;
@@ -50,6 +48,36 @@ enum H5F_close_degree_t {
     H5F_CLOSE_STRONG
 }
 
+enum H5F_mem_t {
+    H5FD_MEM_NOLIST = -1,
+    H5FD_MEM_DEFAULT,
+    H5FD_MEM_SUPER,
+    H5FD_MEM_BTREE,
+    H5FD_MEM_DRAW,
+    H5FD_MEM_GHEAP,
+    H5FD_MEM_LHEAP,
+    H5FD_MEM_OHDR,
+    H5FD_MEM_NTYPES
+}
+
+enum H5F_libver_t {
+    H5F_LIBVER_EARLIEST = 0,
+    H5F_LIBVER_LATEST
+}
+
+enum H5F_file_space_type_t {
+    H5F_FILE_SPACE_DEFAULT = 0,
+    H5F_FILE_SPACE_ALL_PERSIST,
+    H5F_FILE_SPACE_ALL,
+    H5F_FILE_SPACE_AGGR_VFD,
+    H5F_FILE_SPACE_VFD,
+    H5F_FILE_SPACE_NTYPES
+}
+
+/* Extern declarations, structs and globals */
+
+extern (C) nothrow:
+
 struct H5F_info2_t {
     static struct super_ {              // originally: struct {} super
         uint        version_;           // originally: "version"
@@ -68,35 +96,9 @@ struct H5F_info2_t {
     }
 }
 
-enum H5F_mem_t {
-    H5FD_MEM_NOLIST = -1,
-    H5FD_MEM_DEFAULT,
-    H5FD_MEM_SUPER,
-    H5FD_MEM_BTREE,
-    H5FD_MEM_DRAW,
-    H5FD_MEM_GHEAP,
-    H5FD_MEM_LHEAP,
-    H5FD_MEM_OHDR,
-    H5FD_MEM_NTYPES
-}
-
 struct H5F_sect_info_t {
     haddr_t addr;
     hsize_t size;
-}
-
-enum H5F_libver_t {
-    H5F_LIBVER_EARLIEST = 0,
-    H5F_LIBVER_LATEST
-}
-
-enum H5F_file_space_type_t {
-    H5F_FILE_SPACE_DEFAULT = 0,
-    H5F_FILE_SPACE_ALL_PERSIST,
-    H5F_FILE_SPACE_ALL,
-    H5F_FILE_SPACE_AGGR_VFD,
-    H5F_FILE_SPACE_VFD,
-    H5F_FILE_SPACE_NTYPES
 }
 
 htri_t  H5Fis_hdf5(const char *filename);
@@ -132,3 +134,8 @@ version (H5_HAVE_PARALLEL) {
     herr_t  H5Fset_mpi_atomicity(hid_t file_id, hbool_t flag);
     herr_t  H5Fget_mpi_atomicity(hid_t file_id, hbool_t *flag);
 }
+
+/* Register properties */
+
+import hdf5.c.meta;
+mixin makeProperties!(mixin(__MODULE__), "_g", H5check);

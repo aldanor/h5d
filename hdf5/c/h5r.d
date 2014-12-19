@@ -7,7 +7,7 @@ import hdf5.c.h5g;
 import hdf5.c.h5i;
 import hdf5.c.h5o;
 
-extern (C) nothrow:
+/* Constants, enums and aliases */
 
 enum H5R_type_t {
     H5R_BADTYPE = -1,
@@ -22,6 +22,10 @@ alias hobj_ref_t = haddr_t;
 enum H5R_DSET_REG_REF_BUF_SIZE = haddr_t.sizeof + 4;
 
 alias hdfset_reg_ref_t = ubyte[H5R_DSET_REG_REF_BUF_SIZE];
+
+/* Extern declarations, structs and globals */
+
+extern (C) nothrow:
 
 herr_t  H5Rcreate(void *ref_, hid_t loc_id, const char *name, // was "ref"
                   H5R_type_t ref_type, hid_t space_id);

@@ -5,10 +5,8 @@ module hdf5.c.drivers.log;
 import hdf5.c.h5;
 import hdf5.c.h5i;
 
-const hid_t H5FD_LOG;
-
-shared static this() {
-    H5FD_LOG = H5FD_log_init();
+hid_t H5FD_LOG() @property {
+    return H5FD_log_init();
 }
 
 extern (C) nothrow:

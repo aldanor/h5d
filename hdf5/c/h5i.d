@@ -6,7 +6,7 @@ import core.stdc.stdint;
 
 import hdf5.c.h5;
 
-extern (C) nothrow:
+/* Constants, enums and aliases */
 
 enum H5I_type_t {
     H5I_UNINIT = -2,
@@ -32,6 +32,10 @@ alias hid_t = int64_t;
 enum H5_SIZEOF_HID_T = int64_t.sizeof;
 
 enum hid_t H5I_INVALID_HID = -1;
+
+/* Extern declarations, structs and globals */
+
+extern (C) nothrow:
 
 alias H5I_free_t = herr_t function (void*);
 

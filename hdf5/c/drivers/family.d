@@ -5,10 +5,8 @@ module hdf5.c.drivers.family;
 import hdf5.c.h5;
 import hdf5.c.h5i;
 
-const hid_t H5FD_FAMILY;
-
-shared static this() {
-    H5FD_FAMILY = H5FD_family_init();
+hid_t H5FD_FAMILY() @property {
+    return H5FD_family_init;
 }
 
 extern (C) nothrow:

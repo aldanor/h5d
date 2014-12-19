@@ -5,7 +5,7 @@ module hdf5.c.h5z;
 import hdf5.c.h5;
 import hdf5.c.h5i;
 
-extern (C) nothrow:
+/* Constants, enums and aliases */
 
 alias H5Z_filter_t = int;
 
@@ -79,20 +79,14 @@ enum H5Z_cb_return_t {
     H5Z_CB_NO
 }
 
-alias H5Z_filter_func_t = H5Z_cb_return_t function (H5Z_filter_t filter, void* buf,
-                                                    size_t buf_size, void* op_data);
+/* Extern declarations, structs and globals */
+
+extern (C) nothrow:
 
 struct H5Z_cb_t {
     H5Z_filter_func_t func;
     void             *op_data;
 }
-
-alias H5Z_can_apply_func_t = htri_t function (hid_t dcpl_id, hid_t type_id, hid_t space_id);
-
-alias H5Z_set_local_func_t = herr_t function (hid_t dcpl_id, hid_t type_id, hid_t space_id);
-
-alias H5Z_func_t = size_t function (uint flags, size_t cd_nelmts, const uint cd_values[],
-                                    size_t nbytes, size_t *buf_size, void **buf);
 
 struct H5Z_class2_t {
     int                  version_; // was "version"
@@ -104,6 +98,13 @@ struct H5Z_class2_t {
     H5Z_set_local_func_t set_local;
     H5Z_func_t           filter;
 }
+
+alias H5Z_filter_func_t    = H5Z_cb_return_t function (H5Z_filter_t filter, void* buf,
+                                                       size_t buf_size, void* op_data);
+alias H5Z_can_apply_func_t = htri_t function (hid_t dcpl_id, hid_t type_id, hid_t space_id);
+alias H5Z_set_local_func_t = herr_t function (hid_t dcpl_id, hid_t type_id, hid_t space_id);
+alias H5Z_func_t           = size_t function (uint flags, size_t cd_nelmts, const uint cd_values[],
+                                              size_t nbytes, size_t *buf_size, void **buf);
 
 herr_t  H5Zregister(const void *cls);
 herr_t  H5Zunregister(H5Z_filter_t id);

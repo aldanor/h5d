@@ -17,65 +17,12 @@ import hdf5.c.h5mm;
 import hdf5.c.h5t;
 import hdf5.c.h5z;
 
-shared static this() {
-    H5open();
-}
-
-extern (C) nothrow:
-
-extern __gshared hid_t H5P_CLS_ROOT_ID_g;               alias H5P_CLS_ROOT = H5P_CLS_ROOT_ID_g;
-extern __gshared hid_t H5P_CLS_OBJECT_CREATE_ID_g;      alias H5P_CLS_OBJECT_CREATE = H5P_CLS_OBJECT_CREATE_ID_g;
-extern __gshared hid_t H5P_CLS_FILE_CREATE_ID_g;        alias H5P_CLS_FILE_CREATE = H5P_CLS_FILE_CREATE_ID_g;
-extern __gshared hid_t H5P_CLS_FILE_ACCESS_ID_g;        alias H5P_CLS_FILE_ACCESS = H5P_CLS_FILE_ACCESS_ID_g;
-extern __gshared hid_t H5P_CLS_DATASET_CREATE_ID_g;     alias H5P_CLS_DATASET_CREATE = H5P_CLS_DATASET_CREATE_ID_g;
-extern __gshared hid_t H5P_CLS_DATASET_ACCESS_ID_g;     alias H5P_CLS_DATASET_ACCESS = H5P_CLS_DATASET_ACCESS_ID_g;
-extern __gshared hid_t H5P_CLS_DATASET_XFER_ID_g;       alias H5P_CLS_DATASET_XFER = H5P_CLS_DATASET_XFER_ID_g;
-extern __gshared hid_t H5P_CLS_FILE_MOUNT_ID_g;         alias H5P_CLS_FILE_MOUNT = H5P_CLS_FILE_MOUNT_ID_g;
-extern __gshared hid_t H5P_CLS_GROUP_CREATE_ID_g;       alias H5P_CLS_GROUP_CREATE = H5P_CLS_GROUP_CREATE_ID_g;
-extern __gshared hid_t H5P_CLS_GROUP_ACCESS_ID_g;       alias H5P_CLS_GROUP_ACCESS = H5P_CLS_GROUP_ACCESS_ID_g;
-extern __gshared hid_t H5P_CLS_DATATYPE_CREATE_ID_g;    alias H5P_CLS_DATATYPE_CREATE = H5P_CLS_DATATYPE_CREATE_ID_g;
-extern __gshared hid_t H5P_CLS_DATATYPE_ACCESS_ID_g;    alias H5P_CLS_DATATYPE_ACCESS = H5P_CLS_DATATYPE_ACCESS_ID_g;
-extern __gshared hid_t H5P_CLS_STRING_CREATE_ID_g;      alias H5P_CLS_STRING_CREATE = H5P_CLS_STRING_CREATE_ID_g;
-extern __gshared hid_t H5P_CLS_ATTRIBUTE_CREATE_ID_g;   alias H5P_CLS_ATTRIBUTE_CREATE = H5P_CLS_ATTRIBUTE_CREATE_ID_g;
-extern __gshared hid_t H5P_CLS_OBJECT_COPY_ID_g;        alias H5P_CLS_OBJECT_COPY = H5P_CLS_OBJECT_COPY_ID_g;
-extern __gshared hid_t H5P_CLS_LINK_CREATE_ID_g;        alias H5P_CLS_LINK_CREATE = H5P_CLS_LINK_CREATE_ID_g;
-extern __gshared hid_t H5P_CLS_LINK_ACCESS_ID_g;        alias H5P_CLS_LINK_ACCESS = H5P_CLS_LINK_ACCESS_ID_g;
-
-extern __gshared hid_t H5P_LST_FILE_CREATE_ID_g;        alias H5P_LST_FILE_CREATE = H5P_LST_FILE_CREATE_ID_g;
-extern __gshared hid_t H5P_LST_FILE_ACCESS_ID_g;        alias H5P_LST_FILE_ACCESS = H5P_LST_FILE_ACCESS_ID_g;
-extern __gshared hid_t H5P_LST_DATASET_CREATE_ID_g;     alias H5P_LST_DATASET_CREATE = H5P_LST_DATASET_CREATE_ID_g;
-extern __gshared hid_t H5P_LST_DATASET_ACCESS_ID_g;     alias H5P_LST_DATASET_ACCESS = H5P_LST_DATASET_ACCESS_ID_g;
-extern __gshared hid_t H5P_LST_DATASET_XFER_ID_g;       alias H5P_LST_DATASET_XFER = H5P_LST_DATASET_XFER_ID_g;
-extern __gshared hid_t H5P_LST_FILE_MOUNT_ID_g;         alias H5P_LST_FILE_MOUNT = H5P_LST_FILE_MOUNT_ID_g;
-extern __gshared hid_t H5P_LST_GROUP_CREATE_ID_g;       alias H5P_LST_GROUP_CREATE = H5P_LST_GROUP_CREATE_ID_g;
-extern __gshared hid_t H5P_LST_GROUP_ACCESS_ID_g;       alias H5P_LST_GROUP_ACCESS = H5P_LST_GROUP_ACCESS_ID_g;
-extern __gshared hid_t H5P_LST_DATATYPE_CREATE_ID_g;    alias H5P_LST_DATATYPE_CREATE = H5P_LST_DATATYPE_CREATE_ID_g;
-extern __gshared hid_t H5P_LST_DATATYPE_ACCESS_ID_g;    alias H5P_LST_DATATYPE_ACCESS = H5P_LST_DATATYPE_ACCESS_ID_g;
-extern __gshared hid_t H5P_LST_ATTRIBUTE_CREATE_ID_g;   alias H5P_LST_ATTRIBUTE_CREATE = H5P_LST_ATTRIBUTE_CREATE_ID_g;
-extern __gshared hid_t H5P_LST_OBJECT_COPY_ID_g;        alias H5P_LST_OBJECT_COPY = H5P_LST_OBJECT_COPY_ID_g;
-extern __gshared hid_t H5P_LST_LINK_CREATE_ID_g;        alias H5P_LST_LINK_CREATE = H5P_LST_LINK_CREATE_ID_g;
-extern __gshared hid_t H5P_LST_LINK_ACCESS_ID_g;        alias H5P_LST_LINK_ACCESS = H5P_LST_LINK_ACCESS_ID_g;
+/* Constants, enums and aliases */
 
 enum uint H5P_CRT_ORDER_TRACKED = 0x0001;
 enum uint H5P_CRT_ORDER_INDEXED = 0x0002;
 
 enum hid_t H5P_DEFAULT = 0;
-
-alias H5P_cls_create_func_t = herr_t function (hid_t prop_id, void *create_data);
-alias H5P_cls_copy_func_t = herr_t function (hid_t new_prop_id, hid_t old_prop_id, void *copy_data);
-alias H5P_cls_close_func_t = herr_t function (hid_t prop_id, void *close_data);
-
-alias H5P_prp_cb1_t = herr_t function (const char *name, size_t size, void *value);
-alias H5P_prp_cb2_t = herr_t function (hid_t prop_id, const char *name, size_t size, void *value);
-alias H5P_prp_create_func_t = H5P_prp_cb1_t;
-alias H5P_prp_set_func_t = H5P_prp_cb2_t;
-alias H5P_prp_get_func_t = H5P_prp_cb2_t;
-alias H5P_prp_delete_func_t = H5P_prp_cb2_t;
-alias H5P_prp_copy_func_t = H5P_prp_cb1_t;
-alias H5P_prp_compare_func_t = int function (const void *value1, const void *value2, size_t size);
-alias H5P_prp_close_func_t = H5P_prp_cb1_t;
-
-alias H5P_iterate_t = herr_t function (hid_t id, const char *name, void *iter_data);
 
 enum H5D_mpio_actual_chunk_opt_mode_t {
     H5D_MPIO_NO_CHUNK_OPTIMIZATION = 0,
@@ -102,21 +49,83 @@ enum H5D_mpio_no_collective_cause_t {
     H5D_MPIO_FILTERS                           = 0x40
 }
 
+/* Extern declarations, structs and globals */
+
+extern (C) nothrow:
+
+alias H5P_cls_create_func_t = herr_t function (hid_t prop_id, void *create_data);
+alias H5P_cls_copy_func_t = herr_t function (hid_t new_prop_id, hid_t old_prop_id, void *copy_data);
+alias H5P_cls_close_func_t = herr_t function (hid_t prop_id, void *close_data);
+alias H5P_prp_cb1_t = herr_t function (const char *name, size_t size, void *value);
+alias H5P_prp_cb2_t = herr_t function (hid_t prop_id, const char *name, size_t size, void *value);
+alias H5P_prp_create_func_t = H5P_prp_cb1_t;
+alias H5P_prp_set_func_t = H5P_prp_cb2_t;
+alias H5P_prp_get_func_t = H5P_prp_cb2_t;
+alias H5P_prp_delete_func_t = H5P_prp_cb2_t;
+alias H5P_prp_copy_func_t = H5P_prp_cb1_t;
+alias H5P_prp_compare_func_t = int function (const void *value1, const void *value2, size_t size);
+alias H5P_prp_close_func_t = H5P_prp_cb1_t;
+alias H5P_iterate_t = herr_t function (hid_t id, const char *name, void *iter_data);
+
+package {
+    extern __gshared hid_t H5P_CLS_ROOT_ID_g;
+    extern __gshared hid_t H5P_CLS_OBJECT_CREATE_ID_g;
+    extern __gshared hid_t H5P_CLS_FILE_CREATE_ID_g;
+    extern __gshared hid_t H5P_CLS_FILE_ACCESS_ID_g;
+    extern __gshared hid_t H5P_CLS_DATASET_CREATE_ID_g;
+    extern __gshared hid_t H5P_CLS_DATASET_ACCESS_ID_g;
+    extern __gshared hid_t H5P_CLS_DATASET_XFER_ID_g;
+    extern __gshared hid_t H5P_CLS_FILE_MOUNT_ID_g;
+    extern __gshared hid_t H5P_CLS_GROUP_CREATE_ID_g;
+    extern __gshared hid_t H5P_CLS_GROUP_ACCESS_ID_g;
+    extern __gshared hid_t H5P_CLS_DATATYPE_CREATE_ID_g;
+    extern __gshared hid_t H5P_CLS_DATATYPE_ACCESS_ID_g;
+    extern __gshared hid_t H5P_CLS_STRING_CREATE_ID_g;
+    extern __gshared hid_t H5P_CLS_ATTRIBUTE_CREATE_ID_g;
+    extern __gshared hid_t H5P_CLS_OBJECT_COPY_ID_g;
+    extern __gshared hid_t H5P_CLS_LINK_CREATE_ID_g;
+    extern __gshared hid_t H5P_CLS_LINK_ACCESS_ID_g;
+
+    extern __gshared hid_t H5P_LST_FILE_CREATE_ID_g;
+    extern __gshared hid_t H5P_LST_FILE_ACCESS_ID_g;
+    extern __gshared hid_t H5P_LST_DATASET_CREATE_ID_g;
+    extern __gshared hid_t H5P_LST_DATASET_ACCESS_ID_g;
+    extern __gshared hid_t H5P_LST_DATASET_XFER_ID_g;
+    extern __gshared hid_t H5P_LST_FILE_MOUNT_ID_g;
+    extern __gshared hid_t H5P_LST_GROUP_CREATE_ID_g;
+    extern __gshared hid_t H5P_LST_GROUP_ACCESS_ID_g;
+    extern __gshared hid_t H5P_LST_DATATYPE_CREATE_ID_g;
+    extern __gshared hid_t H5P_LST_DATATYPE_ACCESS_ID_g;
+    extern __gshared hid_t H5P_LST_ATTRIBUTE_CREATE_ID_g;
+    extern __gshared hid_t H5P_LST_OBJECT_COPY_ID_g;
+    extern __gshared hid_t H5P_LST_LINK_CREATE_ID_g;
+    extern __gshared hid_t H5P_LST_LINK_ACCESS_ID_g;
+}
+
+version (H5_HAVE_PARALLEL) {
+    herr_t  H5Pget_mpio_actual_chunk_opt_mode(hid_t plist_id, H5D_mpio_actual_chunk_opt_mode_t
+                                              *actual_chunk_opt_mode);
+    herr_t  H5Pget_mpio_actual_io_mode(hid_t plist_id, H5D_mpio_actual_io_mode_t *actual_io_mode);
+    herr_t  H5Pget_mpio_no_collective_cause(hid_t plist_id, uint32_t *local_no_collective_cause,
+                                            uint32_t *global_no_collective_cause);
+}
+
 hid_t   H5Pcreate_class(hid_t parent, const char *name, H5P_cls_create_func_t cls_create,
-                        void *create_data, H5P_cls_copy_func_t cls_copy, void *copy_data,
-                        H5P_cls_close_func_t cls_close, void *close_data);
+                          void *create_data, H5P_cls_copy_func_t cls_copy, void *copy_data,
+                          H5P_cls_close_func_t cls_close, void *close_data);
 char   *H5Pget_class_name(hid_t pclass_id);
 hid_t   H5Pcreate(hid_t cls_id);
 herr_t  H5Pregister2(hid_t cls_id, const char *name, size_t size, void *def_value,
-                     H5P_prp_create_func_t prp_create, H5P_prp_set_func_t prp_set,
-                     H5P_prp_get_func_t prp_get, H5P_prp_delete_func_t prp_del,
-                     H5P_prp_copy_func_t prp_copy, H5P_prp_compare_func_t prp_cmp,
-                     H5P_prp_close_func_t prp_close);
+                       H5P_prp_create_func_t prp_create, H5P_prp_set_func_t prp_set,
+                       H5P_prp_get_func_t prp_get, H5P_prp_delete_func_t prp_del,
+                       H5P_prp_copy_func_t prp_copy, H5P_prp_compare_func_t prp_cmp,
+                       H5P_prp_close_func_t prp_close);
 herr_t  H5Pinsert2(hid_t plist_id, const char *name, size_t size, void *value,
-                   H5P_prp_set_func_t prp_set, H5P_prp_get_func_t prp_get,
-                   H5P_prp_delete_func_t prp_delete, H5P_prp_copy_func_t prp_copy,
-                   H5P_prp_compare_func_t prp_cmp, H5P_prp_close_func_t prp_close);
-herr_t  H5Pset(hid_t plist_id, const char *name, void *value);
+                     H5P_prp_set_func_t prp_set, H5P_prp_get_func_t prp_get,
+                     H5P_prp_delete_func_t prp_delete, H5P_prp_copy_func_t prp_copy,
+                     H5P_prp_compare_func_t prp_cmp, H5P_prp_close_func_t prp_close);
+
+herr_t H5Pset(hid_t plist_id, const char *name, void *value);
 htri_t  H5Pexist(hid_t plist_id, const char *name);
 herr_t  H5Pget_size(hid_t id, const char *name, size_t *size);
 herr_t  H5Pget_nprops(hid_t id, size_t *nprops);
@@ -140,14 +149,14 @@ herr_t  H5Pget_attr_creation_order(hid_t plist_id, uint *crt_order_flags);
 herr_t  H5Pset_obj_track_times(hid_t plist_id, hbool_t track_times);
 herr_t  H5Pget_obj_track_times(hid_t plist_id, hbool_t *track_times);
 herr_t  H5Pmodify_filter(hid_t plist_id, H5Z_filter_t filter, uint flags, size_t cd_nelmts,
-                         const uint cd_values[]);
+                           const uint cd_values[]);
 herr_t  H5Pset_filter(hid_t plist_id, H5Z_filter_t filter, uint flags, size_t cd_nelmts,
-                      const uint c_values[]);
+                        const uint c_values[]);
 int     H5Pget_nfilters(hid_t plist_id);
 H5Z_filter_t    H5Pget_filter2(hid_t plist_id, uint filter, uint *flags, size_t *cd_nelmts,
-                               uint cd_values[], size_t namelen, char name[], uint *filter_config);
+                                 uint cd_values[], size_t namelen, char name[], uint *filter_config);
 herr_t  H5Pget_filter_by_id2(hid_t plist_id, H5Z_filter_t id, uint *flags, uint cd_values[],
-                             uint *filter_config);
+                               uint *filter_config);
 htri_t  H5Pall_filters_avail(hid_t plist_id);
 herr_t  H5Premove_filter(hid_t plist_id, H5Z_filter_t filter);
 herr_t  H5Pset_deflate(hid_t plist_id, uint aggression);
@@ -164,10 +173,11 @@ herr_t  H5Pset_istore_k(hid_t plist_id, uint ik);
 herr_t  H5Pget_istore_k(hid_t plist_id, uint *ik);
 herr_t  H5Pset_shared_mesg_nindexes(hid_t plist_id, uint nindexes);
 herr_t  H5Pget_shared_mesg_nindexes(hid_t plist_id, uint *nindexes);
+
 herr_t  H5Pset_shared_mesg_index(hid_t plist_id, uint index_num, uint mesg_type_flags,
-                                 uint min_mesg_size);
+                                   uint min_mesg_size);
 herr_t  H5Pget_shared_mesg_index(hid_t plist_id, uint index_num, uint *mesg_type_flags,
-                                 uint *min_mesg_size);
+                                   uint *min_mesg_size);
 herr_t  H5Pset_shared_mesg_phase_change(hid_t plist_id, uint max_list, uint min_btree);
 herr_t  H5Pget_shared_mesg_phase_change(hid_t plist_id, uint *max_list, uint *min_btree);
 
@@ -181,9 +191,9 @@ herr_t  H5Pget_family_offset(hid_t fapl_id, hsize_t *offset);
 herr_t  H5Pset_multi_type(hid_t fapl_id, H5FD_mem_t type);
 herr_t  H5Pget_multi_type(hid_t fapl_id, H5FD_mem_t *type);
 herr_t  H5Pset_cache(hid_t plist_id, int mdc_nelmts, size_t rdcc_nslots, size_t rdcc_nbytes,
-                     double rdcc_w0);
+                       double rdcc_w0);
 herr_t  H5Pget_cache(hid_t plist_id, int *mdc_nelmts, size_t *rdcc_nslots, size_t *rdcc_nbytes,
-                     double *rdcc_w0);
+                       double *rdcc_w0);
 herr_t  H5Pset_mdc_config(hid_t plist_id, H5AC_cache_config_t *config_ptr);
 herr_t  H5Pget_mdc_config(hid_t plist_id, H5AC_cache_config_t *config_ptr);
 herr_t  H5Pset_gc_references(hid_t fapl_id, uint gc_ref);
@@ -230,7 +240,7 @@ herr_t  H5Pget_fill_time(hid_t plist_id, H5D_fill_time_t *fill_time);
 
 herr_t  H5Pset_chunk_cache(hid_t dapl_id, size_t rdcc_nslots, size_t rdcc_nbytes, double rdcc_w0);
 herr_t  H5Pget_chunk_cache(hid_t dapl_id, size_t *rdcc_nslots, size_t *rdcc_nbytes,
-                           double *rdcc_w0);
+                             double *rdcc_w0);
 
 herr_t  H5Pset_data_transform(hid_t plist_id, const char* expression);
 ssize_t     H5Pget_data_transform(hid_t plist_id, char* expression, size_t size);
@@ -244,21 +254,13 @@ herr_t  H5Pset_filter_callback(hid_t plist_id, H5Z_filter_func_t func, void* op_
 herr_t  H5Pset_btree_ratios(hid_t plist_id, double left, double middle, double right);
 herr_t  H5Pget_btree_ratios(hid_t plist_id, double *left, double *middle, double *right);
 herr_t  H5Pset_vlen_mem_manager(hid_t plist_id, H5MM_allocate_t alloc_func, void *alloc_info,
-                                H5MM_free_t free_func, void *free_info);
+                                  H5MM_free_t free_func, void *free_info);
 herr_t  H5Pget_vlen_mem_manager(hid_t plist_id, H5MM_allocate_t *alloc_func, void **alloc_info,
-                                H5MM_free_t *free_func, void **free_info);
+                                  H5MM_free_t *free_func, void **free_info);
 herr_t  H5Pset_hyper_vector_size(hid_t fapl_id, size_t size);
 herr_t  H5Pget_hyper_vector_size(hid_t fapl_id, size_t *size);
 herr_t  H5Pset_type_conv_cb(hid_t dxpl_id, H5T_conv_except_func_t op, void* operate_data);
 herr_t  H5Pget_type_conv_cb(hid_t dxpl_id, H5T_conv_except_func_t *op, void** operate_data);
-
-version (H5_HAVE_PARALLEL) {
-    herr_t  H5Pget_mpio_actual_chunk_opt_mode(hid_t plist_id, H5D_mpio_actual_chunk_opt_mode_t
-                                              *actual_chunk_opt_mode);
-    herr_t  H5Pget_mpio_actual_io_mode(hid_t plist_id, H5D_mpio_actual_io_mode_t *actual_io_mode);
-    herr_t  H5Pget_mpio_no_collective_cause(hid_t plist_id, uint32_t *local_no_collective_cause,
-                                            uint32_t *global_no_collective_cause);
-}
 
 herr_t  H5Pset_create_intermediate_group(hid_t plist_id, uint crt_intmd);
 herr_t  H5Pget_create_intermediate_group(hid_t plist_id, uint *crt_intmd);
@@ -292,3 +294,8 @@ herr_t  H5Padd_merge_committed_dtype_path(hid_t plist_id, const char *path);
 herr_t  H5Pfree_merge_committed_dtype_paths(hid_t plist_id);
 herr_t  H5Pset_mcdt_search_cb(hid_t plist_id, H5O_mcdt_search_cb_t func, void *op_data);
 herr_t  H5Pget_mcdt_search_cb(hid_t plist_id, H5O_mcdt_search_cb_t *func, void **op_data);
+
+/* Register properties */
+
+import hdf5.c.meta;
+mixin makeProperties!(mixin(__MODULE__), "_ID_g", H5open);

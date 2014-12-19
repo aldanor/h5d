@@ -5,13 +5,17 @@ module hdf5.c.h5ac;
 import hdf5.c.h5;
 import hdf5.c.h5c;
 
-extern (C) nothrow:
+/* Constants and enums */
 
 enum int H5AC__CURR_CACHE_CONFIG_VERSION = 1;
 enum int H5AC__MAX_TRACE_FILE_NAME_LEN   = 1024;
 
 enum int H5AC_METADATA_WRITE_STRATEGY__PROCESS_0_ONLY = 0;
 enum int H5AC_METADATA_WRITE_STRATEGY__DISTRIBUTED    = 1;
+
+/* Extern declarations, structs and globals */
+
+extern (C) nothrow:
 
 struct H5AC_cache_config_t {
     int     version_;               // was "version"
