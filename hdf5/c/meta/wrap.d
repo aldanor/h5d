@@ -33,7 +33,7 @@ unittest {
 }
 
 mixin template _makeProperty(alias parent, string suffix, alias func, string name) {
-    mixin(("typeof(__traits(getMember, parent, name)) %s() @property "
+    mixin(("public typeof(__traits(getMember, parent, name)) %s() @property nothrow "
           ~ "{ cast(void) func(); return __traits(getMember, parent, name); }").format(
           name[0 .. $ - suffix.length]));
 }
