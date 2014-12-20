@@ -104,26 +104,23 @@ mixin template _wrapSymbol(T, alias wrapper, string name) {
 mixin template _wrapSymbol(alias symbol, alias wrapper, string name) {
     static if (__traits(isStaticFunction, symbol)) {
         static if (functionLinkage!symbol == "C")
-            mixin("alias %s = wrapper!(symbol);".format(name));
+            mixin("alias D_%s = wrapper!(symbol);".format(name));
     }
-    else {
-        static if (is(symbol) || is(typeof(symbol))) {
-            mixin("alias %s = symbol;".format(name));
-            static if (is(symbol == enum))
-                mixin aliasMembers!symbol;
-        }
-    }
+    else static if (is(symbol == enum))
+        mixin aliasMembers!symbol;
 }
 
 mixin template _wrapSymbols(alias parent, alias wrapper, names...) {
     static if (names.length > 0) {
-        static if (isPublic!(__traits(getMember, parent, names[0])))
+        static if (__traits(compiles, __traits(getMember, parent, names[0]))) {
             mixin _wrapSymbol!(__traits(getMember, parent, names[0]), wrapper, names[0]);
+        }
         mixin _wrapSymbols!(parent, wrapper, names[1 .. $]);
     }
 }
 
 mixin template wrapSymbols(alias parent, alias wrapper) {
+    import std.string, std.traits, hdf5.meta, hdf5.c.meta;
     static if (__traits(compiles, __traits(allMembers, parent)))
         mixin _wrapSymbols!(parent, wrapper, __traits(allMembers, parent));
 }
@@ -156,17 +153,13 @@ unittest {
         private enum TEST_BAR = 2;
     }
     mixin wrapSymbols!(Test, wrapper);
-    static assert(is(test_enum == enum));
     assert(X == 1);
     assert(Y == 2);
-    static assert(is(test_struct == struct));
     test_struct s = { 1 };
-    static assert(is(test_type == int));
     static assert(!__traits(compiles, test_f));
-    static assert(__traits(compiles, test_g));
-    assertNotThrown!Exception(test_g(0));
-    assertThrown!Exception(test_g(-1));
-    static assert(TEST_FOO == 1);
+    static assert(__traits(compiles, D_test_g));
+    assertNotThrown!Exception(D_test_g(0));
+    assertThrown!Exception(D_test_g(-1));
     assert(isFunctionPointer!test_function);
     static assert(!__traits(compiles, TEST_BAR));
 }

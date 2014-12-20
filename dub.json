@@ -19,7 +19,6 @@
     ],
     "sourcePaths": ["hdf5"],
     "importPaths": ["."],
-    "excludedSourceFiles": [],
     "libs": ["hdf5", "hdf5_hl"],
     "lflags": ["-L/usr/local/lib"]
 }

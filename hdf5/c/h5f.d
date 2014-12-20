@@ -78,19 +78,9 @@ enum H5F_file_space_type_t {
 
 extern (C) nothrow:
 
-struct H5F_info2_t {
-    static struct super_ {              // originally: struct {} super
-        uint        version_;           // originally: "version"
-        hsize_t     super_size;
-        hsize_t     super_ext_size;
-    }
-    static struct free {                // originally: struct {} free
-        uint        version_;           // originally: "version"
-        hsize_t     meta_size;
-        hsize_t     tot_space;
-    }
-    static struct sohm {                // originally: struct {} sohm
-        uint         version_;          //originally: "version"
+struct H5F_info_t {
+    hsize_t     super_ext_size;
+    static struct sohm {
         hsize_t      hdr_size;
         H5_ih_info_t msgs_info;
     }
@@ -125,9 +115,7 @@ herr_t  H5Fget_mdc_size(hid_t file_id, size_t *max_size_ptr, size_t *min_clean_s
                        size_t *cur_size_ptr, int *cur_num_entries_ptr);
 herr_t  H5Freset_mdc_hit_rate_stats(hid_t file_id);
 ssize_t H5Fget_name(hid_t obj_id, char *name, size_t size);
-herr_t  H5Fget_info2(hid_t obj_id, H5F_info2_t *finfo);
-ssize_t H5Fget_free_sections(hid_t file_id, H5F_mem_t type, size_t nsects,
-                             H5F_sect_info_t *sect_info);
+herr_t  H5Fget_info(hid_t obj_id, H5F_info_t *finfo);
 herr_t  H5Fclear_elink_file_cache(hid_t file_id);
 
 version (H5_HAVE_PARALLEL) {

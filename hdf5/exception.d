@@ -1,4 +1,4 @@
-module hdf5.err;
+module hdf5.exception;
 
 import std.traits       : ParameterTypeTuple, ReturnType, isIntegral, isSigned;
 import std.exception    : assertThrown, assertNotThrown;
