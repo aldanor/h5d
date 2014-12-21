@@ -1,14 +1,7 @@
 module hdf5.c.meta.wrap;
 
-import std.traits;
-import std.string;
-import std.typetuple;
-import std.exception;
-import std.format;
-
-import hdf5.meta;
-
 mixin template _makeProperty(alias parent, string suffix, alias func, string name) {
+    import std.string : format;
     mixin(("public typeof(__traits(getMember, parent, name)) %s() @property nothrow "
           ~ "{ cast(void) func(); return __traits(getMember, parent, name); }").format(
           name[0 .. $ - suffix.length]));
@@ -36,6 +29,7 @@ template _variableSuffixMatches(alias parent, string suffix) {
         static if (!__traits(compiles, __traits(getMember, parent, name)))
             return false;
         else {
+            import hdf5.meta : ID;
             alias symbol = ID!(__traits(getMember, parent, name));
             static if (is(symbol) || !is(typeof(symbol)))
                 return false;
@@ -94,17 +88,20 @@ mixin template _aliasMembers(alias symbol, names...) {
 }
 
 mixin template aliasMembers(alias symbol) {
+    import std.string : format;
+    import hdf5.meta : ID;
     mixin _aliasMembers!(symbol, __traits(allMembers, symbol));
 }
 
-mixin template _wrapSymbol(T, alias wrapper, string name) {
-    mixin("alias %s = T;".format(name));
-}
+mixin template _wrapSymbol(T, alias wrapper, string name) {}
 
 mixin template _wrapSymbol(alias symbol, alias wrapper, string name) {
     static if (__traits(isStaticFunction, symbol)) {
-        static if (functionLinkage!symbol == "C")
-            mixin("alias D_%s = wrapper!(symbol);".format(name));
+        static if (functionLinkage!symbol == "C") {
+            static if (!(functionAttributes!symbol & FunctionAttribute.property)) {
+                mixin("alias D_%s = wrapper!(symbol);".format(name));
+            }
+        }
     }
     else static if (is(symbol == enum))
         mixin aliasMembers!symbol;
@@ -120,12 +117,15 @@ mixin template _wrapSymbols(alias parent, alias wrapper, names...) {
 }
 
 mixin template wrapSymbols(alias parent, alias wrapper) {
-    import std.string, std.traits, hdf5.meta, hdf5.c.meta;
+    import std.traits;
+    import std.string : format;
+    import hdf5.c.meta : _wrapSymbols, _wrapSymbol, aliasMembers, _aliasMembers;
     static if (__traits(compiles, __traits(allMembers, parent)))
         mixin _wrapSymbols!(parent, wrapper, __traits(allMembers, parent));
 }
 
 unittest {
+    import std.exception : assertThrown, assertNotThrown;
     auto wrapper(alias func)(ParameterTypeTuple!(func) args)
     {
         static if (is(ReturnType!(func) == void))
@@ -155,11 +155,18 @@ unittest {
     mixin wrapSymbols!(Test, wrapper);
     assert(X == 1);
     assert(Y == 2);
-    test_struct s = { 1 };
+    static assert(!__traits(compiles, test_struct));
     static assert(!__traits(compiles, test_f));
     static assert(__traits(compiles, D_test_g));
     assertNotThrown!Exception(D_test_g(0));
     assertThrown!Exception(D_test_g(-1));
-    assert(isFunctionPointer!test_function);
+    static assert(!__traits(compiles, test_function));
+    static assert(!__traits(compiles, test_type));
     static assert(!__traits(compiles, TEST_BAR));
+}
+
+mixin template wrapSymbolsH5(alias parent) {
+    import hdf5.c.meta.wrap : wrapSymbols;
+    import hdf5.exception : errorCheckH5;
+    mixin wrapSymbols!(parent, errorCheckH5);
 }

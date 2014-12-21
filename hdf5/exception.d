@@ -2,6 +2,17 @@ module hdf5.exception;
 
 import std.traits       : ParameterTypeTuple, ReturnType, isIntegral, isSigned;
 import std.exception    : assertThrown, assertNotThrown;
+import std.string       : fromStringz;
+import std.conv         : to;
+
+import hdf5.api;
+
+shared static this() {
+    version (unittest) {
+        // Disable error message printing when running unit tests
+        H5Eset_auto2(H5E_DEFAULT, null, null);
+    }
+}
 
 bool maybeError(T)(T v) {
     static if (is(T == function) || is (T : void *))
@@ -33,7 +44,6 @@ unittest {
 
 
 auto errorCheck(alias func, alias callback = null)(ParameterTypeTuple!(func) args)
-// TODO: add static if check for alias / callback
 {
     static if (is(ReturnType!(func) == void))
         func(args);
@@ -41,13 +51,13 @@ auto errorCheck(alias func, alias callback = null)(ParameterTypeTuple!(func) arg
         auto result = func(args);
         if (maybeError(result)) {
             static if (is(typeof(callback) == typeof(null)))
-                auto exc = new Exception("not valid");
+                auto exc = "not valid";
             else {
                 auto exc = callback();
                 if (exc is null)
                     return result;
             }
-            throw exc;
+            throw new Exception(exc);
         }
         return result;
     }
@@ -86,14 +96,68 @@ unittest {
     assertNotThrown!Exception(errorCheck!other_func());
     assert(errorCheck!other_func() == "foo");
 
-    auto callback_always = () => new Exception("foo");
+    auto callback_always = () => "foo";
     assertThrown!Exception(errorCheck!(int_func, callback_always)(-1));
     assertNotThrown!Exception(errorCheck!(int_func, callback_always)(0));
     assert(errorCheck!(int_func, callback_always)(0) == 0);
 
-    auto callback_never = () => cast(Exception) null;
+    auto callback_never = () => cast(string) null;
     assertNotThrown!Exception(errorCheck!(int_func, callback_never)(-1));
     assertNotThrown!Exception(errorCheck!(int_func, callback_never)(0));
     assert(errorCheck!(int_func, callback_never)(0) == 0);
 }
 
+private struct error_data_t {
+    H5E_error2_t *err;
+    uint err_stack;
+    const nothrow @property {
+        string desc() { return err.desc.to!string; }
+        string func_name() { return err.func_name.to!string; }
+    }
+}
+
+extern (C) herr_t walk_cb(uint err_stack, const H5E_error2_t *eptr, void *data) nothrow {
+    auto error_data = cast(error_data_t*) data;
+    error_data.err_stack = err_stack;
+    H5E_error2_t err = *eptr;
+    error_data.err = &err;
+    return 0;
+}
+
+class H5Exception(Exception) {
+}
+
+string checkH5Exception() nothrow {
+    error_data_t err_top, err_bottom;
+
+    if (H5Ewalk2(H5E_DEFAULT, H5E_WALK_UPWARD, &walk_cb, cast(void *) &err_top) < 0)
+        return "Failed to walk the error stack upwards.";
+    if (err_top.err_stack < 0)
+        return null;
+    if (err_top.err.desc is null)
+        return "Failed to extract top-level error description.";
+
+    if (H5Ewalk2(H5E_DEFAULT, H5E_WALK_DOWNWARD, &walk_cb, cast(void *) &err_bottom) < 0)
+        return "Failed to walk the error stack downwards.";
+    if (err_bottom.err_stack < 0)
+        return null;
+    if (err_bottom.err.desc is null)
+        return "Failed to extract bottom-level error description.";
+
+    string msg = err_top.desc ~ " in " ~ err_top.func_name ~ "()";
+    if (*err_top.err != *err_bottom.err)
+        msg ~= "[" ~ err_bottom.desc ~ " in " ~ err_bottom.func_name ~ "()]";
+    return msg;
+}
+
+unittest {
+    assert(H5Iget_ref(-1) < 0);
+    try {
+        D_H5Iget_ref(-1);
+    }
+    catch (Exception e) {
+        assert(e.msg == "invalid ID in H5Iget_ref()");
+    }
+}
+
+alias errorCheckH5(alias func) = errorCheck!(func, checkH5Exception);

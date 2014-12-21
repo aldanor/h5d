@@ -1,6 +1,6 @@
 module hdf5.test;
 
-import hdf5.c;
+import hdf5.api;
 
 unittest {
     import std.stdio;

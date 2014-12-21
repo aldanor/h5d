@@ -2,8 +2,6 @@
 
 module hdf5.c.h5i;
 
-import core.stdc.stdint;
-
 import hdf5.c.h5;
 
 /* Constants, enums and aliases */
@@ -27,9 +25,9 @@ enum H5I_type_t {
     H5I_NTYPES
 }
 
-alias hid_t = int64_t;
+alias hid_t = int;
 
-enum H5_SIZEOF_HID_T = int64_t.sizeof;
+enum H5_SIZEOF_HID_T = hid_t.sizeof;
 
 enum hid_t H5I_INVALID_HID = -1;
 

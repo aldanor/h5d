@@ -1,41 +1,32 @@
 module hdf5.api;
 
-import std.format     : format;
-import std.traits     : fullyQualifiedName;
+import hdf5.c.meta.wrap : wrapSymbolsH5;
 
-import hdf5.exception : errorCheck;
-import hdf5.c.meta    : wrapSymbols;
+public import hdf5.c.h5;    mixin wrapSymbolsH5!(hdf5.c.h5);
+public import hdf5.c.h5a;   mixin wrapSymbolsH5!(hdf5.c.h5a);
+public import hdf5.c.h5ac;  mixin wrapSymbolsH5!(hdf5.c.h5ac);
+public import hdf5.c.h5c;   mixin wrapSymbolsH5!(hdf5.c.h5c);
+public import hdf5.c.h5d;   mixin wrapSymbolsH5!(hdf5.c.h5d);
+public import hdf5.c.h5e;   mixin wrapSymbolsH5!(hdf5.c.h5e);
+public import hdf5.c.h5f;   mixin wrapSymbolsH5!(hdf5.c.h5f);
+public import hdf5.c.h5fd;  mixin wrapSymbolsH5!(hdf5.c.h5fd);
+public import hdf5.c.h5g;   mixin wrapSymbolsH5!(hdf5.c.h5g);
+public import hdf5.c.h5i;   mixin wrapSymbolsH5!(hdf5.c.h5i);
+public import hdf5.c.h5l;   mixin wrapSymbolsH5!(hdf5.c.h5l);
+public import hdf5.c.h5mm;  mixin wrapSymbolsH5!(hdf5.c.h5mm);
+public import hdf5.c.h5o;   mixin wrapSymbolsH5!(hdf5.c.h5o);
+public import hdf5.c.h5p;   mixin wrapSymbolsH5!(hdf5.c.h5p);
+public import hdf5.c.h5r;   mixin wrapSymbolsH5!(hdf5.c.h5r);
+public import hdf5.c.h5s;   mixin wrapSymbolsH5!(hdf5.c.h5s);
+public import hdf5.c.h5t;   mixin wrapSymbolsH5!(hdf5.c.h5t);
+public import hdf5.c.h5z;   mixin wrapSymbolsH5!(hdf5.c.h5z);
 
-private mixin template wrapH5(alias mod) {
-    mixin("public import %s;".format(fullyQualifiedName!mod));
-    mixin wrapSymbols!(mod, errorCheck);
-}
-
-mixin wrapH5!(hdf5.c.h5);
-mixin wrapH5!(hdf5.c.h5a);
-mixin wrapH5!(hdf5.c.h5ac);
-mixin wrapH5!(hdf5.c.h5c);
-mixin wrapH5!(hdf5.c.h5d);
-mixin wrapH5!(hdf5.c.h5e);
-mixin wrapH5!(hdf5.c.h5f);
-mixin wrapH5!(hdf5.c.h5fd);
-mixin wrapH5!(hdf5.c.h5g);
-mixin wrapH5!(hdf5.c.h5i);
-mixin wrapH5!(hdf5.c.h5l);
-mixin wrapH5!(hdf5.c.h5mm);
-mixin wrapH5!(hdf5.c.h5o);
-mixin wrapH5!(hdf5.c.h5p);
-mixin wrapH5!(hdf5.c.h5r);
-mixin wrapH5!(hdf5.c.h5s);
-mixin wrapH5!(hdf5.c.h5t);
-mixin wrapH5!(hdf5.c.h5z);
-
-mixin wrapH5!(hdf5.c.drivers.core);
-mixin wrapH5!(hdf5.c.drivers.family);
-mixin wrapH5!(hdf5.c.drivers.log);
-mixin wrapH5!(hdf5.c.drivers.mpi);
-mixin wrapH5!(hdf5.c.drivers.multi);
-mixin wrapH5!(hdf5.c.drivers.sec2);
-mixin wrapH5!(hdf5.c.drivers.stdio);
-mixin wrapH5!(hdf5.c.drivers.windows);
-mixin wrapH5!(hdf5.c.drivers.direct);
+public import hdf5.c.drivers.core;      mixin wrapSymbolsH5!(hdf5.c.drivers.core);
+public import hdf5.c.drivers.family;    mixin wrapSymbolsH5!(hdf5.c.drivers.family);
+public import hdf5.c.drivers.log;       mixin wrapSymbolsH5!(hdf5.c.drivers.log);
+public import hdf5.c.drivers.mpi;       mixin wrapSymbolsH5!(hdf5.c.drivers.mpi);
+public import hdf5.c.drivers.multi;     mixin wrapSymbolsH5!(hdf5.c.drivers.multi);
+public import hdf5.c.drivers.sec2;      mixin wrapSymbolsH5!(hdf5.c.drivers.sec2);
+public import hdf5.c.drivers.stdio;     mixin wrapSymbolsH5!(hdf5.c.drivers.stdio);
+public import hdf5.c.drivers.windows;   mixin wrapSymbolsH5!(hdf5.c.drivers.windows);
+public import hdf5.c.drivers.direct;    mixin wrapSymbolsH5!(hdf5.c.drivers.direct);
