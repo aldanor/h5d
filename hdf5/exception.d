@@ -42,7 +42,6 @@ unittest {
     assert(maybeError(cast(char *) null));
 }
 
-
 auto errorCheck(alias func, alias callback = null)(ParameterTypeTuple!(func) args)
 {
     static if (is(ReturnType!(func) == void))
@@ -51,18 +50,18 @@ auto errorCheck(alias func, alias callback = null)(ParameterTypeTuple!(func) arg
         auto result = func(args);
         if (maybeError(result)) {
             static if (is(typeof(callback) == typeof(null)))
-                auto exc = "not valid";
+                auto exc = new Exception("error");
             else {
                 auto exc = callback();
                 if (exc is null)
                     return result;
             }
-            throw new Exception(exc);
+            //throw new Exception(exc);
+            throw exc;
         }
         return result;
     }
 }
-
 
 unittest {
     void void_func() {}
@@ -96,58 +95,79 @@ unittest {
     assertNotThrown!Exception(errorCheck!other_func());
     assert(errorCheck!other_func() == "foo");
 
-    auto callback_always = () => "foo";
+    auto callback_always = () => new Exception("foo");
     assertThrown!Exception(errorCheck!(int_func, callback_always)(-1));
     assertNotThrown!Exception(errorCheck!(int_func, callback_always)(0));
     assert(errorCheck!(int_func, callback_always)(0) == 0);
 
-    auto callback_never = () => cast(string) null;
+    auto callback_never = () => cast(Exception) null;
     assertNotThrown!Exception(errorCheck!(int_func, callback_never)(-1));
     assertNotThrown!Exception(errorCheck!(int_func, callback_never)(0));
     assert(errorCheck!(int_func, callback_never)(0) == 0);
 }
 
-private struct error_data_t {
-    H5E_error2_t *err;
-    uint err_stack;
-    const nothrow @property {
-        string desc() { return err.desc.to!string; }
-        string func_name() { return err.func_name.to!string; }
+struct H5ErrorData {
+    herr_t major;
+    herr_t minor;
+    string desc;
+    string func_name;
+}
+
+struct H5ErrorStack {
+    H5ErrorData[] stack;
+    alias stack this;
+
+nothrow:
+    void push(H5ErrorData err){
+        stack ~= err;
+    }
+
+    string toString() const{
+        if (length == 0)
+            return "";
+        auto msg = stack[0].desc ~ " in " ~ stack[0].func_name ~ "()";
+        if (length > 1)
+            msg ~= " [" ~ stack[$].desc ~ " in " ~ stack[$].func_name ~ "()]";
+        return msg;
+    }
+
+    static extern (C) herr_t walk_cb(uint err_stack, const H5E_error2_t *eptr, void *data) {
+        if (err_stack >= 0) {
+            auto stack = cast(H5ErrorStack*) data;
+            stack.push(H5ErrorData(eptr.maj_num, eptr.min_num,
+                                   eptr.desc.to!string, eptr.func_name.to!string));
+        }
+        return 0;
     }
 }
 
-extern (C) herr_t walk_cb(uint err_stack, const H5E_error2_t *eptr, void *data) nothrow {
-    auto error_data = cast(error_data_t*) data;
-    error_data.err_stack = err_stack;
-    H5E_error2_t err = *eptr;
-    error_data.err = &err;
-    return 0;
-}
+class H5Exception : Exception {
+    H5ErrorStack stack;
 
-class H5Exception(Exception) {
-}
+nothrow:
+    this(string msg = null, Throwable next = null) {
+        super(msg, next);
+    }
+    this(string msg, string file, size_t line, Throwable next = null) {
+        super(msg, file, line, next);
+    }
+    this(H5ErrorStack stack, Throwable next = null) {
+        super(stack.to!string, next);
+        this.stack = stack;
+    }
+    this(H5ErrorStack stack, string file, size_t line, Throwable next = null) {
+        super(stack.to!string, file, line, next);
+        this.stack = stack;
+    }
 
-string checkH5Exception() nothrow {
-    error_data_t err_top, err_bottom;
+    static H5Exception check() {
+        H5ErrorStack stack;
 
-    if (H5Ewalk2(H5E_DEFAULT, H5E_WALK_UPWARD, &walk_cb, cast(void *) &err_top) < 0)
-        return "Failed to walk the error stack upwards.";
-    if (err_top.err_stack < 0)
-        return null;
-    if (err_top.err.desc is null)
-        return "Failed to extract top-level error description.";
+        if (H5Ewalk2(H5E_DEFAULT, H5E_WALK_UPWARD, &H5ErrorStack.walk_cb, cast(void*) &stack) < 0)
+            return new H5Exception("ERROR: Failed to walk the error stack.");
 
-    if (H5Ewalk2(H5E_DEFAULT, H5E_WALK_DOWNWARD, &walk_cb, cast(void *) &err_bottom) < 0)
-        return "Failed to walk the error stack downwards.";
-    if (err_bottom.err_stack < 0)
-        return null;
-    if (err_bottom.err.desc is null)
-        return "Failed to extract bottom-level error description.";
-
-    string msg = err_top.desc ~ " in " ~ err_top.func_name ~ "()";
-    if (*err_top.err != *err_bottom.err)
-        msg ~= "[" ~ err_bottom.desc ~ " in " ~ err_bottom.func_name ~ "()]";
-    return msg;
+        return stack.length > 0 ? new H5Exception(stack) : null;
+    }
 }
 
 unittest {
@@ -155,9 +175,14 @@ unittest {
     try {
         D_H5Iget_ref(-1);
     }
-    catch (Exception e) {
-        assert(e.msg == "invalid ID in H5Iget_ref()");
+    catch (H5Exception exc) {
+        auto err = exc.stack[0];
+        assert(err.major == H5E_ATOM);
+        assert(err.minor == H5E_BADATOM);
+        assert(err.desc == "invalid ID");
+        assert(err.func_name == "H5Iget_ref");
+        assert(exc.msg == "invalid ID in H5Iget_ref()");
     }
 }
 
-alias errorCheckH5(alias func) = errorCheck!(func, checkH5Exception);
+alias errorCheckH5(alias func) = errorCheck!(func, H5Exception.check);
