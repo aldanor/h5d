@@ -106,6 +106,8 @@ unittest {
     assert(errorCheck!(int_func, callback_never)(0) == 0);
 }
 
+enum H5E_NOT_SET = -1;
+
 struct H5ErrorData {
     herr_t major;
     herr_t minor;
@@ -124,7 +126,7 @@ nothrow:
 
     string toString() const{
         if (length == 0)
-            return "";
+            return "<unknown>";
         auto msg = stack[0].desc ~ " in " ~ stack[0].func_name ~ "()";
         if (length > 1)
             msg ~= " [" ~ stack[$].desc ~ " in " ~ stack[$].func_name ~ "()]";
@@ -160,6 +162,22 @@ nothrow:
         this.stack = stack;
     }
 
+    herr_t major() const @property {
+        return stack.length > 0 ? stack[0].major : H5E_NOT_SET;
+    }
+
+    herr_t minor() const @property {
+        return stack.length > 0 ? stack[0].minor : H5E_NOT_SET;
+    }
+
+    string desc() const @property {
+        return stack.length > 0 ? stack[0].desc : "<unknown>";
+    }
+
+    string func_name() const @property {
+        return stack.length > 0 ? stack[0].func_name : "<unknown>";
+    }
+
     static H5Exception check() {
         H5ErrorStack stack;
 
@@ -181,8 +199,28 @@ unittest {
         assert(err.minor == H5E_BADATOM);
         assert(err.desc == "invalid ID");
         assert(err.func_name == "H5Iget_ref");
+
+        assert(exc.major == H5E_ATOM);
+        assert(exc.minor == H5E_BADATOM);
+        assert(exc.desc == "invalid ID");
+        assert(exc.func_name == "H5Iget_ref");
+
         assert(exc.msg == "invalid ID in H5Iget_ref()");
     }
+
+    auto exc = new H5Exception(cast(H5ErrorStack) []);
+    assert(exc.major == H5E_NOT_SET);
+    assert(exc.minor == H5E_NOT_SET);
+    assert(exc.desc == "<unknown>");
+    assert(exc.func_name == "<unknown>");
+    assert(exc.msg == "<unknown>");
+
+    exc = new H5Exception("foo");
+    assert(exc.major == H5E_NOT_SET);
+    assert(exc.minor == H5E_NOT_SET);
+    assert(exc.desc == "<unknown>");
+    assert(exc.func_name == "<unknown>");
+    assert(exc.msg == "foo");
 }
 
 alias errorCheckH5(alias func) = errorCheck!(func, H5Exception.check);
