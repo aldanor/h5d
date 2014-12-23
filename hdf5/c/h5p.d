@@ -102,6 +102,43 @@ package {
     extern __gshared hid_t H5P_LST_LINK_ACCESS_ID_g;
 }
 
+package {
+    /* Default list classes */
+    alias H5P_ROOT_pl_g             = H5P_CLS_ROOT_ID_g;
+    alias H5P_OBJECT_CREATE_pl_g    = H5P_CLS_OBJECT_CREATE_ID_g;
+    alias H5P_FILE_CREATE_pl_g      = H5P_CLS_FILE_CREATE_ID_g;
+    alias H5P_FILE_ACCESS_pl_g      = H5P_CLS_FILE_ACCESS_ID_g;
+    alias H5P_DATASET_CREATE_pl_g   = H5P_CLS_DATASET_CREATE_ID_g;
+    alias H5P_DATASET_ACCESS_pl_g   = H5P_CLS_DATASET_ACCESS_ID_g;
+    alias H5P_DATASET_XFER_pl_g     = H5P_CLS_DATASET_XFER_ID_g;
+    alias H5P_FILE_MOUNT_pl_g       = H5P_CLS_FILE_MOUNT_ID_g;
+    alias H5P_GROUP_CREATE_pl_g     = H5P_CLS_GROUP_CREATE_ID_g;
+    alias H5P_GROUP_ACCESS_pl_g     = H5P_CLS_GROUP_ACCESS_ID_g;
+    alias H5P_DATATYPE_CREATE_pl_g  = H5P_CLS_DATATYPE_CREATE_ID_g;
+    alias H5P_DATATYPE_ACCESS_pl_g  = H5P_CLS_DATATYPE_ACCESS_ID_g;
+    alias H5P_STRING_CREATE_pl_g    = H5P_CLS_STRING_CREATE_ID_g;
+    alias H5P_ATTRIBUTE_CREATE_pl_g = H5P_CLS_ATTRIBUTE_CREATE_ID_g;
+    alias H5P_OBJECT_COPY_pl_g      = H5P_CLS_OBJECT_COPY_ID_g;
+    alias H5P_LINK_CREATE_pl_g      = H5P_CLS_LINK_CREATE_ID_g;
+    alias H5P_LINK_ACCESS_pl_g      = H5P_CLS_LINK_ACCESS_ID_g;
+
+    /* Default property lists */
+    alias H5P_FILE_CREATE_DEFAULT_pl_g      = H5P_LST_FILE_CREATE_ID_g;
+    alias H5P_FILE_ACCESS_DEFAULT_pl_g      = H5P_LST_FILE_ACCESS_ID_g;
+    alias H5P_DATASET_CREATE_DEFAULT_pl_g   = H5P_LST_DATASET_CREATE_ID_g;
+    alias H5P_DATASET_ACCESS_DEFAULT_pl_g   = H5P_LST_DATASET_ACCESS_ID_g;
+    alias H5P_DATASET_XFER_DEFAULT_pl_g     = H5P_LST_DATASET_XFER_ID_g;
+    alias H5P_FILE_MOUNT_DEFAULT_pl_g       = H5P_LST_FILE_MOUNT_ID_g;
+    alias H5P_GROUP_CREATE_DEFAULT_pl_g     = H5P_LST_GROUP_CREATE_ID_g;
+    alias H5P_GROUP_ACCESS_DEFAULT_pl_g     = H5P_LST_GROUP_ACCESS_ID_g;
+    alias H5P_DATATYPE_CREATE_DEFAULT_pl_g  = H5P_LST_DATATYPE_CREATE_ID_g;
+    alias H5P_DATATYPE_ACCESS_DEFAULT_pl_g  = H5P_LST_DATATYPE_ACCESS_ID_g;
+    alias H5P_ATTRIBUTE_CREATE_DEFAULT_pl_g = H5P_LST_ATTRIBUTE_CREATE_ID_g;
+    alias H5P_OBJECT_COPY_DEFAULT_pl_g      = H5P_LST_OBJECT_COPY_ID_g;
+    alias H5P_LINK_CREATE_DEFAULT_pl_g      = H5P_LST_LINK_CREATE_ID_g;
+    alias H5P_LINK_ACCESS_DEFAULT_pl_g      = H5P_LST_LINK_ACCESS_ID_g;
+}
+
 version (H5_HAVE_PARALLEL) {
     herr_t  H5Pget_mpio_actual_chunk_opt_mode(hid_t plist_id, H5D_mpio_actual_chunk_opt_mode_t
                                               *actual_chunk_opt_mode);
@@ -298,4 +335,4 @@ herr_t  H5Pget_mcdt_search_cb(hid_t plist_id, H5O_mcdt_search_cb_t *func, void *
 /* Register properties */
 
 import hdf5.c.meta;
-mixin makeProperties!(mixin(__MODULE__), "_ID_g", H5open);
+mixin makeProperties!(mixin(__MODULE__), "_pl_g", H5open);

@@ -129,7 +129,7 @@ nothrow:
             return "<unknown>";
         auto msg = stack[0].desc ~ " in " ~ stack[0].func_name ~ "()";
         if (length > 1)
-            msg ~= " [" ~ stack[$].desc ~ " in " ~ stack[$].func_name ~ "()]";
+            msg ~= " [" ~ stack[$ - 1].desc ~ " in " ~ stack[$ - 1].func_name ~ "()]";
         return msg;
     }
 

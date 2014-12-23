@@ -29,8 +29,8 @@ template _variableSuffixMatches(alias parent, string suffix) {
         static if (!__traits(compiles, __traits(getMember, parent, name)))
             return false;
         else {
-            import hdf5.meta : ID;
-            alias symbol = ID!(__traits(getMember, parent, name));
+            import hdf5.meta : Alias;
+            alias symbol = Alias!(__traits(getMember, parent, name));
             static if (is(symbol) || !is(typeof(symbol)))
                 return false;
             else
@@ -82,14 +82,14 @@ unittest {
 
 mixin template _aliasMembers(alias symbol, names...) {
     static if (names.length > 0) {
-        mixin("alias %s = ID!(__traits(getMember, symbol, names[0]));".format(names[0]));
+        mixin("alias %s = Alias!(__traits(getMember, symbol, names[0]));".format(names[0]));
         mixin _aliasMembers!(symbol, names[1 .. $]);
     }
 }
 
 mixin template aliasMembers(alias symbol) {
     import std.string : format;
-    import hdf5.meta : ID;
+    import hdf5.meta : Alias;
     mixin _aliasMembers!(symbol, __traits(allMembers, symbol));
 }
 
