@@ -7,3 +7,5 @@ c/*
 *.tar.gz
 hdf5-test
 dub.selections.json
+*~
+*.h5

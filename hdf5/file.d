@@ -15,42 +15,34 @@ private H5ID makeFCPL() {
     return new H5ID(D_H5Pcreate(H5P_FILE_CREATE));
 }
 
-class H5File : H5Container {
+class H5File(string driver = null) : H5Container {
     package this(hid_t id) { super(id); }
 
-    public this(string filename, string mode = null, hsize_t userblock = 0) {
-        this(makeFAPL(), filename, mode, userblock);
+    static if (driver is null) {
+        public this(string filename, string mode = null, hsize_t userblock = 0) {
+            this(makeFAPL(), filename, mode, userblock);
+        }
     }
 
-    public this(string driver)(string filename, string mode = null, hsize_t userblock = 0)
-    if (driver is null) {
-        this(filename, mode, userblock);
+    static if (driver == "stdio" || driver == "sec2") {
+        public this(string filename, string mode = null, hsize_t userblock = 0) {
+            auto fapl = makeFAPL();
+            mixin("D_H5Pset_fapl_" ~ driver ~ "(fapl.id);");
+            this(fapl, filename, mode, userblock);
+        }
     }
 
-    public this(string driver)()
-    if (driver == "stdio" || driver == "sec2") {
-        auto fapl = makeFAPL();
-        mixin("D_H5Pset_fapl_" ~ driver ~ "(fapl.id);");
-        this(fapl, filename, mode, userblock);
+    static if (driver == "core") {
+        /* TODO: support for core image */
+        public this(string filename, string mode = null, hsize_t userblock = 0,
+                    size_t increment = 64 * 1024 * 1024, bool filebacked = true) {
+            auto fapl = makeFAPL();
+            D_H5Pset_fapl_core(fapl.id, increment, filebacked);
+            this(fapl, filename, mode, userblock);
+        }
     }
 
-    public this(string driver)(string filename, string mode = null, hsize_t userblock = 0,
-                               size_t increment = 64 * 1024 * 1024, bool filebacked = true)
-    if (driver == "core") {
-        auto fapl = makeFAPL();
-        D_H5Pset_fapl_core(fapl.id, increment, filebacked);
-        this(fapl, filename, mode, userblock);
-    }
-
-    public this(string driver)(size_t member_size)
-    if (driver == "family") {
-        auto fapl = makeFAPL();
-        D_H5Pset_fapl_family(fapl.id, member_size, fapl.dup);
-        this(fapl, filename, mode, userblock);
-
-    }
-
-    /* TODO: add support for log, multi, split (mpio?) (windows?) */
+    /* TODO: add support for log, family, multi, split (mpio?) (windows?) */
 
     private this(in H5ID fapl, string filename, string mode, hsize_t userblock) {
         auto fcpl = makeFCPL();
@@ -61,7 +53,7 @@ class H5File : H5Container {
         }
 
         auto open = (uint flags) => D_H5Fopen(filename.toStringz, flags, fapl.id);
-        auto create = (uint flags) => D_H5Fcreate(filename.toStringz, flags, fapl.id, fcpl.id);
+        auto create = (uint flags) => D_H5Fcreate(filename.toStringz, flags, fcpl.id, fapl.id);
 
         hid_t file_id = H5I_INVALID_HID;
         if (mode == "r")
