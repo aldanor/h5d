@@ -6,7 +6,7 @@ import hdf5.utils;
 class H5ID {
     protected hid_t m_id = H5I_INVALID_HID;
 
-    protected this(hid_t id) {
+    package this(hid_t id) {
         m_id = id;
     }
 

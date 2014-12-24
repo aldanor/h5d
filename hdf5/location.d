@@ -8,13 +8,11 @@ public import hdf5.id;
 
 import std.string : toStringz;
 
-class H5Location : H5ID {
-    protected this(hid_t id) {
-        super(id);
-    }
+abstract class H5Location : H5ID {
+    protected this(hid_t id) { super(id); }
 
     public @property {
-        string comment() const {
+        string comment() const nothrow {
             scope(failure) return null;
             return getH5String!D_H5Oget_comment(m_id);
         }
