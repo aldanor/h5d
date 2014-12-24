@@ -42,21 +42,23 @@ unittest {
     assert(maybeError(cast(char *) null));
 }
 
-auto errorCheck(alias func, alias callback = null)(ParameterTypeTuple!(func) args)
-{
+auto errorCheck(alias func, alias callback = null)(ParameterTypeTuple!(func) args,
+                                                   string __file__ = __FILE__,
+                                                   size_t __line__ = __LINE__) {
     static if (is(ReturnType!(func) == void))
         func(args);
     else {
         auto result = func(args);
         if (maybeError(result)) {
             static if (is(typeof(callback) == typeof(null)))
-                auto exc = new Exception("error");
+                auto exc = new Exception("error", __file__, __line__);
             else {
                 auto exc = callback();
                 if (exc is null)
                     return result;
             }
-            //throw new Exception(exc);
+            exc.file = __file__;
+            exc.line = __line__;
             throw exc;
         }
         return result;
@@ -104,6 +106,12 @@ unittest {
     assertNotThrown!Exception(errorCheck!(int_func, callback_never)(-1));
     assertNotThrown!Exception(errorCheck!(int_func, callback_never)(0));
     assert(errorCheck!(int_func, callback_never)(0) == 0);
+
+    try errorCheck!(int_func, callback_always)(-1);
+    catch (Exception exc) {
+        assert(exc.file == __FILE__);
+        assert(exc.line == __LINE__ - 3);
+    }
 }
 
 enum H5E_NOT_SET = -1;
