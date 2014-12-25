@@ -86,9 +86,7 @@ public const {
         if (obj.valid(true))
             D_H5Idec_ref(obj.id);
     }
-
 }
-
 
 unittest {
     import hdf5.exception : H5Exception;

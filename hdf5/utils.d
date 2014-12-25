@@ -1,6 +1,7 @@
 module hdf5.utils;
 
-import std.conv : to;
+import std.conv   : to;
+import std.string : fromStringz;
 
 import hdf5.api : hid_t;
 
@@ -11,5 +12,5 @@ package string getH5String(alias func, Args...)(hid_t id, Args args) {
         return null;
     auto result = new char[size + 1];
     func(id, result.ptr, size + 1, args);
-    return result.to!string;
+    return result.ptr.fromStringz.to!string;
 }
