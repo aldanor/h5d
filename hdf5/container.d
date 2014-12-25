@@ -10,6 +10,10 @@ import std.string : toStringz;
 
 public abstract class H5Container : H5Location {
     protected this(hid_t id) { super(id); }
+
+    H5Group opIndex(in string name) const {
+        return this.group(name);
+    }
 }
 
 public const {
@@ -19,7 +23,7 @@ public const {
     }
 
     /* Open an existing group in a container which can be a file or another group */
-    H5Group openGroup(in H5Container obj, in string name) {
+    H5Group group(in H5Container obj, in string name) {
         return new H5Group(D_H5Gopen2(obj.id, name.toStringz, H5P_DEFAULT));
     }
 }
