@@ -41,8 +41,8 @@ unittest {
 
 /* File Access Property List */
 
-enum CORE_DRIVER_INCREMENT = 64 * 1024 * 1024; // default increment for core driver: 64 MB
-enum CORE_DRIVER_FILEBACKED = true;            // core driver is filebacked by default
+enum CORE_DRIVER_INCREMENT  = 64 * 1024 * 1024; // default increment for core driver: 64 MB
+enum CORE_DRIVER_FILEBACKED = true;             // core driver is filebacked by default
 
 class H5FileAccessPL : H5PropertyList {
     mixin initPropertyListClass!H5P_FILE_ACCESS_DEFAULT;
@@ -91,7 +91,7 @@ class H5FileAccessPL : H5PropertyList {
     }
 }
 
-public H5FileAccessPL fapl(in H5File file) {
+package H5FileAccessPL fapl(in H5File file) {
     return new H5FileAccessPL(D_H5Fget_access_plist(file.id));
 }
 
@@ -144,7 +144,7 @@ class H5FileCreatePL : H5PropertyList {
     }
 }
 
-public H5FileCreatePL fcpl(in H5File file) {
+package H5FileCreatePL fcpl(in H5File file) {
     return new H5FileCreatePL(D_H5Fget_create_plist(file.id));
 }
 

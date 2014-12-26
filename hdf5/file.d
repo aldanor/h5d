@@ -85,8 +85,7 @@ public {
         assert(file.valid && file.driver == "sec2");
     }
     body {
-        auto fapl = new H5FileAccessPL;
-        return new H5File(filename, mode, userblock, fapl);
+        return new H5File(filename, mode, userblock);
     }
 
     H5File openH5File(string driver : "stdio")
@@ -111,8 +110,8 @@ public {
         return new H5File(filename, mode, userblock, fapl);
     }
 
-    H5File openH5File(string driver : "core", bool filebacked = true,
-                      size_t increment = 64 * 1024 * 1024)
+    H5File openH5File(string driver : "core", bool filebacked = CORE_DRIVER_FILEBACKED,
+                      size_t increment = CORE_DRIVER_INCREMENT)
     (in string filename, in string mode = null, size_t userblock = 0)
     out (file) {
         assert(file.valid && file.driver == "core");
