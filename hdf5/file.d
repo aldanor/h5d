@@ -42,6 +42,8 @@ public final class H5File : H5Container {
                 while (object.valid)
                     object.decref();
             D_H5Fclose(m_id);
+            destroy(files);
+            destroy(objects);
         }
     }
 
