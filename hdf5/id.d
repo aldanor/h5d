@@ -5,27 +5,48 @@ import hdf5.utils;
 
 package class H5ID {
     protected hid_t m_id = H5I_INVALID_HID;
+    private static H5ID[hid_t] registry; // TODO: make the registry thread-shared
 
     package this(hid_t id) {
         m_id = id;
+        registry[id] = this;
     }
 
     ~this() {
+        registry[m_id] = null;
         this.decref();
     }
 
-    void close() {
-        this.decref();
-        m_id = H5I_INVALID_HID;
+    public final void close() {
+        doClose();
+        invalidate();
+        afterClose();
     }
 
-    final public auto dup(this R)() const {
+    protected void doClose() {
+        this.decref();
+    }
+
+    protected void afterClose() {
+    }
+
+    public final auto dup(this R)() const {
         this.incref();
         return cast(R) new H5ID(this.id);
     }
 
-    final public @property hid_t id() const nothrow {
+    public final hid_t id() const @property nothrow {
         return m_id;
+    }
+
+    private void invalidate() {
+        m_id = H5I_INVALID_HID;
+    }
+
+    package static void invalidateRegistry() {
+        foreach (id, ref obj; registry)
+            if (!obj.valid)
+                obj.invalidate();
     }
 }
 

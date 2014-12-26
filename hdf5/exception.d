@@ -135,9 +135,9 @@ nothrow:
     string toString() const{
         if (length == 0)
             return "<unknown>";
-        auto msg = stack[0].desc ~ " in " ~ stack[0].func_name ~ "()";
+        auto msg = "\"" ~ stack[0].desc ~ "\" in " ~ stack[0].func_name ~ "()";
         if (length > 1)
-            msg ~= " [" ~ stack[$ - 1].desc ~ " in " ~ stack[$ - 1].func_name ~ "()]";
+            msg ~= " [\"" ~ stack[$ - 1].desc ~ "\" in " ~ stack[$ - 1].func_name ~ "()]";
         return msg;
     }
 
@@ -216,7 +216,7 @@ unittest {
         assert(exc.desc == "invalid ID");
         assert(exc.func_name == "H5Iget_ref");
 
-        assert(exc.msg == "invalid ID in H5Iget_ref()");
+        assert(exc.msg == "\"invalid ID\" in H5Iget_ref()");
     }
 
     auto exc = new H5Exception(cast(H5ErrorStack) []);

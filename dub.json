@@ -3,18 +3,20 @@
     "description": "HDF5 for D",
     "copyright": "Copyright © 2014-2015, Ivan Smirnov",
     "authors": ["Ivan Smirnov"],
-    "dependencies": {
+    "dependencies":
+    {
     },
-    "configurations": [
+    "configurations":
+    [
+        {
+            "name": "library",
+            "targetType": "library"
+        },
         {
             "name": "unittest",
             "targetType": "executable",
             "dflags": ["-main"],
             "targetName": "h5d-test"
-        },
-        {
-            "name": "library",
-            "targetType": "library"
         }
     ],
     "sourcePaths": ["hdf5"],

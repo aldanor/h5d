@@ -3,6 +3,7 @@ module hdf5.file;
 import hdf5.id;
 import hdf5.api;
 import hdf5.exception;
+import hdf5.library;
 
 public import hdf5.id;
 public import hdf5.plist;
@@ -11,7 +12,10 @@ public import hdf5.container;
 import std.string    : toStringz;
 
 version (unittest) {
-    import std.stdio;
+    import std.file      : tempDir, remove, exists, setAttributes;
+    import std.path      : buildPath;
+    import std.stdio     : File;
+    import std.exception : assertThrown;
 }
 
 public final class H5File : H5Container {
@@ -26,23 +30,53 @@ public final class H5File : H5Container {
         }
     }
 
-    public const @property {
+    protected final override void doClose() {
+        if (this.valid) {
+            auto files = findObjects(m_id, H5F_OBJ_FILE);
+            auto objects = findObjects(m_id, H5F_OBJ_ALL & ~H5F_OBJ_FILE);
+            foreach (ref file; files)
+                if (file.id != m_id)
+                    while (file.valid)
+                        file.decref();
+            foreach (ref object; objects)
+                while (object.valid)
+                    object.decref();
+            D_H5Fclose(m_id);
+        }
+    }
+
+    protected final override void afterClose() {
+        typeof(this).invalidateRegistry();
+    }
+
+    public final const @property {
+        // Returns the userblock size in bytes.
         size_t userblock() {
             return this.fcpl.userblock;
         }
 
+        /// Returns the string name of the current file driver.
         string driver() {
             return this.fapl.driver;
         }
 
+        /// Returns the free space in the file in bytes.
         size_t freeSpace() {
             return D_H5Fget_freespace(m_id);
         }
 
+        /// Returns the file size in bytes.
         size_t fileSize() {
             hsize_t size;
             D_H5Fget_filesize(m_id, &size);
             return size;
+        }
+
+        /// Determines the file's write intent, either "r" or "r+".
+        string mode() {
+            uint mode;
+            D_H5Fget_intent(m_id, &mode);
+            return mode == H5F_ACC_RDONLY ? "r" : "r+";
         }
     }
 
@@ -89,7 +123,11 @@ public final class H5File : H5Container {
 }
 
 public {
-    /* TODO: add support for log, family, multi, split (mpio?) (windows?) */
+    bool isHDF5(string filename) {
+        return D_H5Fis_hdf5(filename.toStringz) > 0;
+    }
+
+    // TODO: add support for log, family, multi, split (mpio?) (windows?)
 
     H5File openH5File
     (in string filename, in string mode = null, size_t userblock = 0)
@@ -129,27 +167,82 @@ public {
         assert(file.valid && file.driver == "core");
     }
     body {
-        /* TODO: add support for core images */
+        // TODO: add support for core images
         auto fapl = new H5FileAccessPL;
         fapl.setDriver!"core"(filebacked, increment);
         return new H5File(filename, mode, userblock, fapl);
     }
 }
 
+// file opening modes
 unittest {
-    import std.file : tempDir, remove, exists;
-    import std.path : buildPath;
+    auto filename = tempDir.buildPath("foo.h5");
+    scope(exit) filename.remove();
+    auto mkfile = (string mode = null, size_t userblock = 0) =>
+                  new H5File(filename, mode, userblock);
 
-    auto dir = tempDir();
-    auto filename = "foo.h5";
-    auto path = dir.buildPath(filename);
-    scope(exit) remove(path);
+    // bad input arguments
+    assertThrown!H5Exception(new H5File(filename, "foo"));
+    assertThrown!H5Exception(new H5File(null));
+    assertThrown!H5Exception(new H5File("/foo/bar/baz"));
 
-    auto file = new H5File(path);
+    // no existing file
+    auto file = mkfile();
     scope(exit) file.close();
-    assert(path.exists);
+    assert(file.mode == "r+");
+    file.close();
+    assert(filename.isHDF5);
+
+    // read-only file
+    filename.setAttributes(0x0100);
+    file = mkfile();
+    assert(file.mode == "r");
+    file.close();
+    filename.remove();
+
+    // existing non-HDF5 file
+    auto f = File(filename, "w");
+    f.write("foo");
+    f.close();
+    assertThrown!H5Exception(mkfile());
+    assert(!filename.isHDF5);
+
+    // "w" means overwrite
+    file = mkfile("w", 1024);
+    file.createGroup("bar");
+    file.group("bar");
+    file.close();
+    file = mkfile("w");
+    assertThrown!H5Exception(file.group("bar"));
+    file.close();
+
+    // "w-"/"x" means exclusive
+    filename.remove();
+    mkfile("w-").close();
+    assertThrown!H5Exception(mkfile("w-"));
+    filename.remove();
+    mkfile("x").close();
+    assertThrown!H5Exception(mkfile("x"));
+
+    // "a" means append
+    file = mkfile("a");
+    file.createGroup("bar");
+    file.group("bar");
+    file.close();
+    file = mkfile("a");
+    file.group("bar");
+    file.close();
+}
+
+unittest {
+    auto filename = tempDir.buildPath("foo.h5");
+    scope(exit) filename.remove();
+
+    auto file = new H5File(filename);
+    scope(exit) file.close();
+    assert(filename.exists);
     assert(file.driver == "sec2");
-    assert(file.filename == path);
+    assert(file.filename == filename);
     assert(file.name == "/");
     assert(file.userblock == 0);
 }
