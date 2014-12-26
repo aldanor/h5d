@@ -5,7 +5,7 @@ __dummy.html
 *.obj
 c/*
 *.tar.gz
-hdf5-test
+h5d-test
 dub.selections.json
 *~
 *.h5
