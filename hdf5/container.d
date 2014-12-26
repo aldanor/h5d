@@ -8,7 +8,7 @@ public import hdf5.location;
 
 import std.string : toStringz;
 
-public abstract class H5Container : H5Location {
+package abstract class H5Container : H5Location {
     protected this(hid_t id) { super(id); }
 
     H5Group opIndex(in string name) const {

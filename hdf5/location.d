@@ -8,7 +8,7 @@ public import hdf5.id;
 
 import std.string : toStringz;
 
-abstract class H5Location : H5ID {
+package abstract class H5Location : H5ID {
     protected this(hid_t id) { super(id); }
 
     public const @property {

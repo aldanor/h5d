@@ -96,7 +96,7 @@ package H5FileAccessPL fapl(in H5File file) {
 }
 
 unittest {
-    import std.exception;
+    import std.exception : assertThrown;
 
     auto plist = new H5FileAccessPL;
     assert(plist.id == H5P_FILE_ACCESS_DEFAULT);

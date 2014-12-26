@@ -87,8 +87,8 @@ package const {
 }
 
 unittest {
-    import hdf5.exception;
-    import std.exception;
+    import hdf5.exception : H5Exception;
+    import std.exception  : assertThrown;
 
     // invalid id
     auto obj = new H5ID(-1);
@@ -133,7 +133,7 @@ unittest {
     obj2 = obj.dup;
     assert(obj.refcount == 3);
     assert(obj2.id == obj.id);
-    delete obj2;
+    destroy(obj2);
     assert(obj.refcount == 2);
     obj.decref();
     assert(obj.refcount == 1);

@@ -137,8 +137,8 @@ public {
 }
 
 unittest {
-    import std.file;
-    import std.path;
+    import std.file : tempDir, remove, exists;
+    import std.path : buildPath;
 
     auto dir = tempDir();
     auto filename = "foo.h5";
