@@ -1,8 +1,8 @@
 module hdf5.exception;
 
 import std.traits       : ParameterTypeTuple, ReturnType, isIntegral, isSigned;
-import std.exception    : assertThrown, assertNotThrown;
-import std.string       : fromStringz;
+import std.exception    : assertThrown, assertNotThrown, enforceEx;
+import std.string       : fromStringz, format;
 import std.conv         : to;
 
 import hdf5.api;
@@ -232,3 +232,26 @@ unittest {
 }
 
 alias errorCheckH5(alias func) = errorCheck!(func, H5Exception.check);
+
+void enforceH5(T, Args...)(T value, lazy string msg, Args args) {
+    enforceEx!H5Exception(value, msg.format(args));
+}
+
+unittest {
+    enforceH5(1 == 1, "foo");
+    try
+        enforceH5(0 == 1, "bar %s", "baz");
+    catch (H5Exception exc)
+        assert(exc.msg == "bar baz");
+}
+
+void throwH5(Args...)(lazy string msg, Args args) {
+    throw new H5Exception(msg.format(args));
+}
+
+unittest {
+    try
+        throwH5("1 %d", 2);
+    catch (H5Exception exc)
+        assert(exc.msg == "1 2");
+}

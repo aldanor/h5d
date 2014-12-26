@@ -3,7 +3,7 @@ module hdf5.id;
 import hdf5.api;
 import hdf5.utils;
 
-class H5ID {
+package class H5ID {
     protected hid_t m_id = H5I_INVALID_HID;
 
     package this(hid_t id) {
@@ -23,8 +23,6 @@ class H5ID {
         this.incref();
         return cast(R) new H5ID(this.id);
     }
-
-    //abstract void close();
 
     final public @property hid_t id() const nothrow {
         return m_id;
@@ -72,7 +70,7 @@ public const nothrow {
     }
 }
 
-public const {
+package const {
     uint refcount(in H5ID obj) {
         return D_H5Iget_ref(obj.id);
     }
@@ -89,8 +87,8 @@ public const {
 }
 
 unittest {
-    import hdf5.exception : H5Exception;
-    import std.exception  : assertThrown;
+    import hdf5.exception;
+    import std.exception;
 
     // invalid id
     auto obj = new H5ID(-1);

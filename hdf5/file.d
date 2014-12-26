@@ -4,9 +4,11 @@ import hdf5.id;
 import hdf5.api;
 import hdf5.exception;
 
+public import hdf5.id;
+public import hdf5.plist;
 public import hdf5.container;
 
-import std.string : toStringz, format;
+import std.string    : toStringz;
 
 version (unittest) {
     import std.stdio;
@@ -18,37 +20,25 @@ class H5File : H5Container {
     public {
         static alias open = openH5File;
 
-        this(string filename, string mode = null, hsize_t userblock = 0) {
-            this(filename, mode, userblock, makeFAPL());
+        this(string filename, string mode = null, size_t userblock = 0) {
+            auto fapl = new H5FileAccessPL;
+            this(filename, mode, userblock, fapl);
         }
 
-        hsize_t userblock() const @property {
-            hsize_t userblock;
-            D_H5Pget_userblock(fcpl.id, &userblock);
-            return userblock;
+        size_t userblock() const @property {
+            return this.fcpl.userblock;
         }
 
         string driver() const @property {
-            auto driver = new H5ID(D_H5Pget_driver(fapl.id));
-            if (driver.id == H5FD_STDIO)
-                return "stdio";
-            else if (driver.id == H5FD_SEC2)
-                return "sec2";
-            else if (driver.id == H5FD_CORE)
-                return "core";
-            else
-                throw new H5Exception("unknown file driver (ID %d)".format(driver.id));
+            return this.fapl.driver;
         }
     }
 
-    private this(string filename, string mode, hsize_t userblock, in H5ID fapl) {
-        auto fcpl = makeFCPL();
-
-        if (userblock > 0) {
-            if (mode == "r" || mode == "r+")
-                throw new H5Exception("cannot specify userblock size when reading a file");
-            D_H5Pset_userblock(fcpl.id, userblock);
-        }
+    private this(in string filename, in string mode, size_t userblock, in H5FileAccessPL fapl) {
+        auto fcpl = new H5FileCreatePL;
+        enforceH5((userblock == 0) || (mode != "r" && mode != "r+"),
+                  "cannot specify userblock when reading a file");
+        fcpl.userblock = userblock;
 
         auto open = (uint flags) => D_H5Fopen(filename.toStringz, flags, fapl.id);
         auto create = (uint flags) => D_H5Fcreate(filename.toStringz, flags, fcpl.id, fapl.id);
@@ -62,13 +52,12 @@ class H5File : H5Container {
             file_id = create(H5F_ACC_EXCL);
         else if (mode == "w")
             file_id = create(H5F_ACC_TRUNC);
-        else if (mode == "a") {
+        else if (mode == "a")
             try
                 file_id = open(H5F_ACC_RDWR);
             catch (H5Exception)
                 file_id = create(H5F_ACC_EXCL);
-        }
-        else if (mode is null) {
+        else if (mode is null)
             try
                 file_id = open(H5F_ACC_RDWR);
             catch (H5Exception)
@@ -76,35 +65,14 @@ class H5File : H5Container {
                     file_id = open(H5F_ACC_RDONLY);
                 catch (H5Exception)
                     file_id = create(H5F_ACC_EXCL);
-        }
         else
-            throw new H5Exception(q{invalid mode: "%s" (expected r|r+|w|w-|x|a)}.format(mode));
+            throwH5(q{invalid mode: "%s" (expected r|r+|w|w-|x|a)}, mode);
 
         this(file_id);
         scope(failure) this.close();
-        if (!this.valid)
-            throw new H5Exception("the opened file has a broken handle");
-        if (userblock != this.userblock)
-            throw new H5Exception("expected userblock %d, got %d"
-                                  .format(userblock, this.userblock));
-    }
-
-    protected H5ID fcpl() const {
-        return new H5ID(D_H5Fget_create_plist(m_id));
-    }
-
-    protected H5ID fapl() const {
-        return new H5ID(D_H5Fget_access_plist(m_id));
-    }
-}
-
-private {
-    H5ID makeFCPL() {
-        return new H5ID(D_H5Pcreate(H5P_FILE_CREATE));
-    }
-
-    H5ID makeFAPL() {
-        return new H5ID(D_H5Pcreate(H5P_FILE_ACCESS));
+        enforceH5(this.valid, "the opened file has a broken handle");
+        enforceH5(userblock == this.userblock, "expected userblock %d, got %d",
+                  userblock, this.userblock);
     }
 }
 
@@ -112,46 +80,47 @@ public {
     /* TODO: add support for log, family, multi, split (mpio?) (windows?) */
 
     H5File openH5File
-    (string filename, string mode = null, hsize_t userblock = 0)
+    (in string filename, in string mode = null, size_t userblock = 0)
     out (file) {
-        assert(file.driver == "sec2");
+        assert(file.valid && file.driver == "sec2");
     }
     body {
-        return new H5File(filename, mode, userblock, makeFAPL());
+        auto fapl = new H5FileAccessPL;
+        return new H5File(filename, mode, userblock, fapl);
     }
 
     H5File openH5File(string driver : "stdio")
-    (string filename, string mode = null, hsize_t userblock = 0)
+    (in string filename, in string mode = null, size_t userblock = 0)
     out (file) {
-        assert(file.driver == "stdio");
+        assert(file.valid && file.driver == "stdio");
     }
     body {
-        auto fapl = makeFAPL();
-        D_H5Pset_fapl_stdio(fapl.id);
+        auto fapl = new H5FileAccessPL;
+        fapl.setDriver!"stdio";
         return new H5File(filename, mode, userblock, fapl);
     }
 
     H5File openH5File(string driver : "sec2")
-    (string filename, string mode = null, hsize_t userblock = 0)
+    (in string filename, in string mode = null, size_t userblock = 0)
     out (file) {
-        assert(file.driver == "sec2");
+        assert(file.valid && file.driver == "sec2");
     }
     body {
-        auto fapl = makeFAPL();
-        D_H5Pset_fapl_sec2(fapl.id);
+        auto fapl = new H5FileAccessPL;
+        fapl.setDriver!"sec2";
         return new H5File(filename, mode, userblock, fapl);
     }
 
     H5File openH5File(string driver : "core", bool filebacked = true,
-                             size_t increment = 64 * 1024 * 1024)
-    (string filename, string mode = null, hsize_t userblock = 0)
+                      size_t increment = 64 * 1024 * 1024)
+    (in string filename, in string mode = null, size_t userblock = 0)
     out (file) {
-        assert(file.driver == "core");
+        assert(file.valid && file.driver == "core");
     }
     body {
         /* TODO: add support for core images */
-        auto fapl = makeFAPL();
-        D_H5Pset_fapl_core(fapl.id, increment, filebacked);
+        auto fapl = new H5FileAccessPL;
+        fapl.setDriver!"core"(filebacked, increment);
         return new H5File(filename, mode, userblock, fapl);
     }
 }
