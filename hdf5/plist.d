@@ -30,7 +30,7 @@ private mixin template initPropertyListClass(alias defaultValue) {
 
 /* Generic Property List */
 
-class H5PropertyList : H5ID {
+public class H5PropertyList : H5ID {
     mixin initPropertyListClass!H5P_DEFAULT;
 }
 
@@ -44,7 +44,7 @@ unittest {
 enum CORE_DRIVER_INCREMENT  = 64 * 1024 * 1024; // default increment for core driver: 64 MB
 enum CORE_DRIVER_FILEBACKED = true;             // core driver is filebacked by default
 
-class H5FileAccessPL : H5PropertyList {
+public final class H5FileAccessPL : H5PropertyList {
     mixin initPropertyListClass!H5P_FILE_ACCESS_DEFAULT;
 
     public const {
@@ -134,7 +134,7 @@ unittest {
 
 /* File Create Property List */
 
-class H5FileCreatePL : H5PropertyList {
+public final class H5FileCreatePL : H5PropertyList {
     mixin initPropertyListClass!H5P_FILE_CREATE_DEFAULT;
 
     public const @property {

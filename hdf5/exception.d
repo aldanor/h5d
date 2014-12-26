@@ -14,7 +14,7 @@ shared static this() {
     }
 }
 
-bool maybeError(T)(T v) {
+private bool maybeError(T)(T v) {
     static if (is(T == function) || is (T : void *))
         return v is null;
     else static if (isIntegral!T)
@@ -42,9 +42,9 @@ unittest {
     assert(maybeError(cast(char *) null));
 }
 
-auto errorCheck(alias func, alias callback = null)(ParameterTypeTuple!(func) args,
-                                                   string __file__ = __FILE__,
-                                                   size_t __line__ = __LINE__) {
+package auto errorCheck(alias func, alias callback = null)(ParameterTypeTuple!(func) args,
+                                                           string __file__ = __FILE__,
+                                                           size_t __line__ = __LINE__) {
     static if (is(ReturnType!(func) == void))
         func(args);
     else {
@@ -114,9 +114,9 @@ unittest {
     }
 }
 
-enum H5E_NOT_SET = -1;
+public enum H5E_NOT_SET = -1;
 
-struct H5ErrorData {
+public struct H5ErrorData {
     herr_t major;
     herr_t minor;
     string desc;
@@ -151,42 +151,45 @@ nothrow:
     }
 }
 
-class H5Exception : Exception {
+public class H5Exception : Exception {
     H5ErrorStack stack;
 
-nothrow:
-    this(string msg = null, Throwable next = null) {
-        super(msg, next);
-    }
-    this(string msg, string file, size_t line, Throwable next = null) {
-        super(msg, file, line, next);
-    }
-    this(H5ErrorStack stack, Throwable next = null) {
-        super(stack.to!string, next);
-        this.stack = stack;
-    }
-    this(H5ErrorStack stack, string file, size_t line, Throwable next = null) {
-        super(stack.to!string, file, line, next);
-        this.stack = stack;
-    }
-
-    herr_t major() const @property {
-        return stack.length > 0 ? stack[0].major : H5E_NOT_SET;
+    public nothrow {
+        this(string msg = null, Throwable next = null) {
+            super(msg, next);
+        }
+        this(string msg, string file, size_t line, Throwable next = null) {
+            super(msg, file, line, next);
+        }
+        this(H5ErrorStack stack, Throwable next = null) {
+            super(stack.to!string, next);
+            this.stack = stack;
+        }
+        this(H5ErrorStack stack, string file, size_t line, Throwable next = null) {
+            super(stack.to!string, file, line, next);
+            this.stack = stack;
+        }
     }
 
-    herr_t minor() const @property {
-        return stack.length > 0 ? stack[0].minor : H5E_NOT_SET;
+    public const @property nothrow {
+        herr_t major() {
+            return stack.length > 0 ? stack[0].major : H5E_NOT_SET;
+        }
+
+        herr_t minor() {
+            return stack.length > 0 ? stack[0].minor : H5E_NOT_SET;
+        }
+
+        string desc() {
+            return stack.length > 0 ? stack[0].desc : "<unknown>";
+        }
+
+        string func_name() {
+            return stack.length > 0 ? stack[0].func_name : "<unknown>";
+        }
     }
 
-    string desc() const @property {
-        return stack.length > 0 ? stack[0].desc : "<unknown>";
-    }
-
-    string func_name() const @property {
-        return stack.length > 0 ? stack[0].func_name : "<unknown>";
-    }
-
-    static H5Exception check() {
+    public static H5Exception check() nothrow {
         H5ErrorStack stack;
 
         if (H5Ewalk2(H5E_DEFAULT, H5E_WALK_UPWARD, &H5ErrorStack.walk_cb, cast(void*) &stack) < 0)
@@ -231,9 +234,9 @@ unittest {
     assert(exc.msg == "foo");
 }
 
-alias errorCheckH5(alias func) = errorCheck!(func, H5Exception.check);
+public alias errorCheckH5(alias func) = errorCheck!(func, H5Exception.check);
 
-void enforceH5(T, Args...)(T value, lazy string msg, Args args) {
+public void enforceH5(T, Args...)(T value, lazy string msg, Args args) {
     enforceEx!H5Exception(value, msg.format(args));
 }
 
@@ -245,7 +248,7 @@ unittest {
         assert(exc.msg == "bar baz");
 }
 
-void throwH5(Args...)(lazy string msg, Args args) {
+public void throwH5(Args...)(lazy string msg, Args args) {
     throw new H5Exception(msg.format(args));
 }
 

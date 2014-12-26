@@ -14,7 +14,7 @@ version (unittest) {
     import std.stdio;
 }
 
-class H5File : H5Container {
+public final class H5File : H5Container {
     package this(hid_t id) { super(id); }
 
     public {
