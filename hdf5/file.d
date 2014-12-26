@@ -30,21 +30,18 @@ public final class H5File : H5Container {
         }
     }
 
-    protected final override void doClose() {
-        if (this.valid) {
-            auto files = findObjects(m_id, H5F_OBJ_FILE);
-            auto objects = findObjects(m_id, H5F_OBJ_ALL & ~H5F_OBJ_FILE);
-            foreach (ref file; files)
-                if (file.id != m_id)
-                    while (file.valid)
-                        file.decref();
-            foreach (ref object; objects)
-                while (object.valid)
-                    object.decref();
-            D_H5Fclose(m_id);
-            destroy(files);
-            destroy(objects);
-        }
+    protected override void doClose() {
+        auto files = findObjects(m_id, H5F_OBJ_FILE);
+        auto objects = findObjects(m_id, H5F_OBJ_ALL & ~H5F_OBJ_FILE);
+        foreach (ref file; files)
+            while (file.valid)
+                file.decref();
+        foreach (ref object; objects)
+            while (object.valid)
+                object.decref();
+        D_H5Fclose(m_id);
+        destroy(files);
+        destroy(objects);
     }
 
     protected final override void afterClose() {

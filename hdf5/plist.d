@@ -32,6 +32,10 @@ private mixin template initPropertyListClass(alias defaultValue) {
 
 public class H5PropertyList : H5ID {
     mixin initPropertyListClass!H5P_DEFAULT;
+
+    protected final override void doClose() {
+        D_H5Pclose(m_id);
+    }
 }
 
 unittest {

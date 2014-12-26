@@ -13,13 +13,12 @@ package H5ID[] findObjects(hid_t where = H5F_OBJ_ALL, uint types = H5F_OBJ_ALL) 
     if (count > 0) {
         auto ids = new hid_t[count];
         D_H5Fget_obj_ids(where, types, count, ids.ptr);
-        foreach (id; ids) {
-            auto object = new H5ID(id);
-            // increase refcount since it's a borrowed reference unless it's the parent object
+        foreach (id; ids)
             if (id != where)
-                object.incref();
-            objects ~= object;
-        }
+                objects ~= new H5ID(id);
+        // increase refcounts since these are borrowed references
+        foreach (ref object; objects)
+            object.incref();
     }
     return objects;
 }

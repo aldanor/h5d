@@ -18,7 +18,8 @@ package class H5ID {
     }
 
     public final void close() {
-        doClose();
+        if (this.valid)
+            doClose();
         invalidate();
         afterClose();
     }
