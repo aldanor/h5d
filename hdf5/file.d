@@ -176,7 +176,7 @@ public {
 // file opening modes
 unittest {
     auto filename = tempDir.buildPath("foo.h5");
-    scope(exit) filename.remove();
+    scope(exit) if (filename.exists) filename.remove();
     auto mkfile = (string mode = null, size_t userblock = 0) =>
                   new H5File(filename, mode, userblock);
 
@@ -208,6 +208,7 @@ unittest {
 
     // "w" means overwrite
     file = mkfile("w", 1024);
+    assert(file.mode == "r+");
     file.createGroup("bar");
     file.group("bar");
     file.close();
@@ -217,20 +218,52 @@ unittest {
 
     // "w-"/"x" means exclusive
     filename.remove();
-    mkfile("w-").close();
+    file = mkfile("w-");
+    assert(file.mode == "r+");
+    file.close();
     assertThrown!H5Exception(mkfile("w-"));
     filename.remove();
-    mkfile("x").close();
+    file = mkfile("x");
+    assert(file.mode == "r+");
+    file.close();
     assertThrown!H5Exception(mkfile("x"));
 
     // "a" means append
     file = mkfile("a");
+    assert(file.mode == "r+");
     file.createGroup("bar");
     file.group("bar");
     file.close();
     file = mkfile("a");
     file.group("bar");
     file.close();
+
+    // "r" means readonly
+    file = mkfile("r");
+    assert(file.mode == "r");
+    assertThrown!H5Exception(file.createGroup("bar"));
+    file.close();
+
+    // "r+" means readwrite
+    file = mkfile("w");
+    file.createGroup("bar");
+    file.close();
+    file = mkfile("r+");
+    assert(file.mode == "r+");
+    file.group("bar");
+    file.createGroup("baz");
+    file.close();
+    file = mkfile("r");
+    file.group("bar");
+    file.group("baz");
+    file.close();
+
+    // non-existent files
+    filename.remove();
+    assertThrown!H5Exception(mkfile("r"));
+    assertThrown!H5Exception(mkfile("r+"));
+
+    // TODO: add tests for modes of files opened via external links
 }
 
 unittest {
@@ -241,6 +274,7 @@ unittest {
     scope(exit) file.close();
     assert(filename.exists);
     assert(file.driver == "sec2");
+    assert(file.mode == "r+");
     assert(file.filename == filename);
     assert(file.name == "/");
     assert(file.userblock == 0);
