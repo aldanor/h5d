@@ -24,13 +24,25 @@ class H5File : H5Container {
             auto fapl = new H5FileAccessPL;
             this(filename, mode, userblock, fapl);
         }
+    }
 
-        size_t userblock() const @property {
+    public const @property {
+        size_t userblock() {
             return this.fcpl.userblock;
         }
 
-        string driver() const @property {
+        string driver() {
             return this.fapl.driver;
+        }
+
+        size_t freeSpace() {
+            return D_H5Fget_freespace(m_id);
+        }
+
+        size_t fileSize() {
+            hsize_t size;
+            D_H5Fget_filesize(m_id, &size);
+            return size;
         }
     }
 
@@ -134,6 +146,7 @@ unittest {
     scope(exit) remove(path);
 
     auto file = new H5File(path);
+    scope(exit) file.close();
     assert(path.exists);
     assert(file.driver == "sec2");
     assert(file.filename == path);
