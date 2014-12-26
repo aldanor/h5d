@@ -124,6 +124,12 @@ unittest {
     plist.setDriver!"sec2";
     assertThrown!H5Exception(plist.filebacked);
     assertThrown!H5Exception(plist.increment);
+
+    auto file = H5File.open!("core", false, 1024)("foo");
+    scope(exit) file.close();
+    assert(file.fapl.driver == "core");
+    assert(file.fapl.filebacked == false);
+    assert(file.fapl.increment == 1024);
 }
 
 /* File Create Property List */
@@ -158,6 +164,7 @@ unittest {
     assert(plist.userblock == 512);
 
     auto file = H5File.open!("core", false)("foo", null, 1024);
-    assert(fcpl(file).userblock == 1024); // FIXME: UFSC
+    scope(exit) file.close();
+    assert(file.fcpl.userblock == 1024);
 }
 

@@ -20,7 +20,7 @@ class H5File : H5Container {
     public {
         static alias open = openH5File;
 
-        this(string filename, string mode = null, size_t userblock = 0) {
+        this(in string filename, in string mode = null, size_t userblock = 0) {
             auto fapl = new H5FileAccessPL;
             this(filename, mode, userblock, fapl);
         }
