@@ -34,10 +34,10 @@ public final class H5File : H5Container {
         auto files = findObjects(m_id, H5F_OBJ_FILE);
         auto objects = findObjects(m_id, H5F_OBJ_ALL & ~H5F_OBJ_FILE);
         foreach (ref file; files)
-            while (file.valid)
+            while (file.valid && file.refcount > 0)
                 file.decref();
         foreach (ref object; objects)
-            while (object.valid)
+            while (object.valid && object.refcount > 0)
                 object.decref();
         D_H5Fclose(m_id);
     }
@@ -385,10 +385,18 @@ unittest {
     f.close();
     file.group("bar");
     file.close();
-    file = new H5File(filename);
+
+    // writing to the file shouldn't corrupt the userblock
+    file = new H5File(filename, "a");
     assert(file.userblock == 512);
     file.group("bar");
+    file.createGroup("baz");
     file.close();
+    f = File(filename, "rb");
+    f.rawRead(data);
+    f.close();
+    foreach (i, x; data)
+        assert(x == i % 256);
 }
 
 unittest {
