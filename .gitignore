@@ -10,3 +10,4 @@ dub.selections.json
 *~
 *.h5
 docs/
+*.a

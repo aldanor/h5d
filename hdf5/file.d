@@ -40,8 +40,6 @@ public final class H5File : H5Container {
             while (object.valid)
                 object.decref();
         D_H5Fclose(m_id);
-        destroy(files);
-        destroy(objects);
     }
 
     protected final override void afterClose() {
@@ -116,8 +114,8 @@ public final class H5File : H5Container {
         this(file_id);
         scope(failure) this.close();
         enforceH5(this.valid, "the opened file has a broken handle");
-        enforceH5(userblock == this.userblock, "expected userblock %d, got %d",
-                  userblock, this.userblock);
+        enforceH5(!userblock || (mode == "r" || mode == "r+") || (userblock == this.userblock),
+                  "expected userblock %d, got %d", userblock, this.userblock);
     }
 }
 
@@ -293,7 +291,7 @@ unittest {
     file.group("bar");
     file.close();
 
-    //// core, existing file
+    // core, existing file
     file = openH5File(filename, "w");
     file.createGroup("bar");
     file.close();
@@ -323,6 +321,74 @@ unittest {
         assert(file.valid && file.driver == "stdio");
         file.close();
     }
+}
+
+// opening the same file multiple times without closing shouldn't fail
+unittest {
+    auto filename = tempDir.buildPath("foo.h5");
+    scope(exit) if (filename.exists) filename.remove();
+    auto file = new H5File(filename, "w");
+    scope(exit) file.close();
+    file = openH5File!"stdio"(filename);
+    file = openH5File!("core", false)(filename);
+    file = openH5File!("core", true)(filename);
+}
+
+// test the userblock
+unittest {
+    auto filename = tempDir.buildPath("foo.h5");
+    scope(exit) if (filename.exists) filename.remove();
+
+    auto file = new H5File(filename, "w", 512);
+    scope(exit) file.close();
+    file.close();
+
+    // in-memory core driver supports userblock
+    file = openH5File!("core", false)(filename);
+    assert(file.valid && file.driver == "core" && file.userblock == 512);
+    file.close();
+
+    // default userblock is 0
+    file = new H5File(filename, "w");
+    assert(file.userblock == 0);
+    file.close();
+
+    // userblock size has to be a power of two (at least 512) or 0
+    assertThrown!H5Exception(new H5File(filename, "w", 1));
+    assertThrown!H5Exception(new H5File(filename, "w", 256));
+    assertThrown!H5Exception(new H5File(filename, "w", 511));
+    assertThrown!H5Exception(new H5File(filename, "w", 1023));
+
+    // test that userblock matches
+    file = new H5File(filename, "w", 512);
+    assert(file.userblock == 512);
+    file.close();
+    assertThrown!H5Exception(new H5File(filename, "a", 1024));
+    assertThrown!H5Exception(new H5File(filename, "w-", 1024));
+    assertThrown!H5Exception(new H5File(filename, "x", 1024));
+    file = new H5File(filename, "a", 512);
+    assert(file.userblock == 512);
+    file.close();
+    file = new H5File(filename, "a");
+    assert(file.userblock == 512);
+    file.close();
+
+    // directly writing to the userblock shouldn't corrupt the file data
+    file = new H5File(filename);
+    assert(file.userblock == 512);
+    file.createGroup("bar");
+    auto f = File(filename, "r+b");
+    ubyte data[512];
+    foreach (i, ref x; data)
+        x = cast(ubyte) (i % 256);
+    f.rawWrite(data);
+    f.close();
+    file.group("bar");
+    file.close();
+    file = new H5File(filename);
+    assert(file.userblock == 512);
+    file.group("bar");
+    file.close();
 }
 
 unittest {

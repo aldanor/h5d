@@ -15,7 +15,8 @@ package class H5ID {
     ~this() @nogc {
         auto id_type = H5Iget_type(m_id);
         if (id_type > H5I_BADID && id_type < H5I_NTYPES)
-            H5Idec_ref(m_id);
+            if (H5Iget_ref(m_id) > 0)
+                H5Idec_ref(m_id);
     }
 
     public final void close() {

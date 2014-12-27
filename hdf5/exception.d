@@ -8,10 +8,8 @@ import std.conv         : to;
 import hdf5.api;
 
 shared static this() {
-    version (unittest) {
-        // Disable error message printing when running unit tests
-        H5Eset_auto2(H5E_DEFAULT, null, null);
-    }
+    // Disable error message printing unless "log" debug flag is set
+    debug (log) {} else H5Eset_auto2(H5E_DEFAULT, null, null);
 }
 
 private bool maybeError(T)(T v) {
