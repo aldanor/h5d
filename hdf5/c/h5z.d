@@ -81,7 +81,7 @@ enum H5Z_cb_return_t {
 
 /* Extern declarations, structs and globals */
 
-extern (C) nothrow:
+extern (C) nothrow @nogc:
 
 struct H5Z_cb_t {
     H5Z_filter_func_t func;

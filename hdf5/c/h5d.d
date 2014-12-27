@@ -59,7 +59,7 @@ enum H5D_fill_value_t {
 
 /* Extern declarations, structs and globals */
 
-extern (C) nothrow:
+extern (C) nothrow @nogc:
 
 alias   H5D_operator_t = herr_t function(void *elem, hid_t type_id, uint ndim,
                                          const hsize_t *point, void *operator_data);

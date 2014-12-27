@@ -29,7 +29,7 @@ enum H5L_TYPE_UD_MIN      = H5L_type_t.H5L_TYPE_EXTERNAL;
 
 /* Extern declarations, structs and globals */
 
-extern (C) nothrow:
+extern (C) nothrow @nogc:
 
 struct H5L_info_t {
     H5L_type_t  type;

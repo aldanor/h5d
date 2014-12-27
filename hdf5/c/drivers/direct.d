@@ -5,7 +5,7 @@ module hdf5.c.drivers.direct;
 import hdf5.c.h5;
 import hdf5.c.h5i;
 
-hid_t H5FD_DIRECT() @property {
+hid_t H5FD_DIRECT() @property @nogc {
     version (H5_HAVE_DIRECT) {
         return H5FD_direct_init();
     }
@@ -14,7 +14,7 @@ hid_t H5FD_DIRECT() @property {
     }
 }
 
-extern (C) nothrow:
+extern (C) nothrow @nogc:
 
 version (H5_HAVE_DIRECT) {
     enum uint MBOUNDARY_DEF = 4096;

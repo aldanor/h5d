@@ -7,11 +7,11 @@ import hdf5.c.h5i;
 import hdf5.c.h5p;
 import hdf5.c.h5fd;
 
-hid_t H5FD_MULTI() @property {
+hid_t H5FD_MULTI() @property @nogc {
     return H5FD_multi_init();
 }
 
-extern (C) nothrow:
+extern (C) nothrow @nogc:
 
 hid_t   H5FD_multi_init();
 void    H5FD_multi_term();

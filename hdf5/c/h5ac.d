@@ -15,7 +15,7 @@ enum int H5AC_METADATA_WRITE_STRATEGY__DISTRIBUTED    = 1;
 
 /* Extern declarations, structs and globals */
 
-extern (C) nothrow:
+extern (C) nothrow @nogc:
 
 struct H5AC_cache_config_t {
     int     version_;               // was "version"

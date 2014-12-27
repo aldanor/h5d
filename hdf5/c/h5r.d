@@ -25,7 +25,7 @@ alias hdfset_reg_ref_t = ubyte[H5R_DSET_REG_REF_BUF_SIZE];
 
 /* Extern declarations, structs and globals */
 
-extern (C) nothrow:
+extern (C) nothrow @nogc:
 
 herr_t  H5Rcreate(void *ref_, hid_t loc_id, const char *name, // was "ref"
                   H5R_type_t ref_type, hid_t space_id);

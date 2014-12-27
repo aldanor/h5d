@@ -33,7 +33,7 @@ enum hid_t H5I_INVALID_HID = -1;
 
 /* Extern declarations, structs and globals */
 
-extern (C) nothrow:
+extern (C) nothrow @nogc:
 
 alias H5I_free_t = herr_t function (void*);
 

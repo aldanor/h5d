@@ -189,6 +189,8 @@ unittest {
     auto file = mkfile();
     scope(exit) file.close();
     assert(file.mode == "r+");
+    assertThrown!H5Exception(mkfile("w"));
+    mkfile("r").close();
     file.close();
     assert(filename.isHDF5);
 
@@ -266,9 +268,66 @@ unittest {
     // TODO: add tests for modes of files opened via external links
 }
 
+// file drivers
 unittest {
     auto filename = tempDir.buildPath("foo.h5");
-    scope(exit) filename.remove();
+    scope(exit) if (filename.exists) filename.remove();
+    H5File file;
+    scope(exit) if (file !is null) file.close();
+
+    // core, non-file-backed
+    if (filename.exists) filename.remove();
+    file = openH5File!("core", false)(filename);
+    assert(file.valid && file.driver == "core");
+    file.close();
+    assert(!filename.exists);
+
+    // core, file-backed (default option)
+    if (filename.exists) filename.remove();
+    file = openH5File!"core"(filename);
+    assert(file.valid && file.driver == "core");
+    file.createGroup("bar");
+    file.close();
+    assert(filename.exists);
+    file = openH5File(filename);
+    file.group("bar");
+    file.close();
+
+    //// core, existing file
+    file = openH5File(filename, "w");
+    file.createGroup("bar");
+    file.close();
+    file = openH5File!"core"(filename);
+    file.group("bar");
+    file.close();
+
+    // default driver (sec2)
+    if (filename.exists) filename.remove();
+    file = openH5File(filename);
+    assert(file.valid && file.driver == "sec2");
+    assert(filename.exists);
+    file.close();
+
+    // sec2 driver
+    if (filename.exists) filename.remove();
+    file = openH5File!"sec2"(filename);
+    assert(filename.exists);
+    assert(file.valid && file.driver == "sec2");
+    file.close();
+
+    version (Posix) {
+        // stdio driver
+        if (filename.exists) filename.remove();
+        file = openH5File!"stdio"(filename);
+        assert(filename.exists);
+        assert(file.valid && file.driver == "stdio");
+        file.close();
+    }
+}
+
+unittest {
+    auto filename = tempDir.buildPath("foo.h5");
+    scope(exit) if (filename.exists) filename.remove();
 
     auto file = new H5File(filename);
     scope(exit) file.close();

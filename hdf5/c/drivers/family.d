@@ -5,11 +5,11 @@ module hdf5.c.drivers.family;
 import hdf5.c.h5;
 import hdf5.c.h5i;
 
-hid_t H5FD_FAMILY() @property {
+hid_t H5FD_FAMILY() @property @nogc {
     return H5FD_family_init;
 }
 
-extern (C) nothrow:
+extern (C) nothrow @nogc:
 
 hid_t   H5FD_family_init();
 void    H5FD_family_term();

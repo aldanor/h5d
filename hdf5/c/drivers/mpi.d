@@ -7,7 +7,7 @@ import hdf5.c.h5i;
 
 enum hid_t H5FD_MPIPOSIX = -1;
 
-hid_t H5FD_MPIO() @property {
+hid_t H5FD_MPIO() @property @nogc {
     version (H5_HAVE_PARALLEL) {
         return H5FD_mpio_init();
     }
@@ -16,7 +16,7 @@ hid_t H5FD_MPIO() @property {
     }
 }
 
-extern (C) nothrow:
+extern (C) nothrow @nogc:
 
 enum uint H5D_ONE_LINK_CHUNK_IO_THRESHOLD = 0;
 

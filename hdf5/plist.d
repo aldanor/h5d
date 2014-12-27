@@ -12,7 +12,7 @@ version (unittest) {
     import hdf5.exception;
 }
 
-private mixin template initPropertyListClass(alias defaultValue) {
+private mixin template initPropertyListClass(alias plistClass) {
     invariant {
         auto id_type = H5Iget_type(m_id);
         if (id_type > H5I_BADID && id_type < H5I_NTYPES)
@@ -24,23 +24,31 @@ private mixin template initPropertyListClass(alias defaultValue) {
     }
 
     public this() {
-        this(defaultValue);
+        this(D_H5Pcreate(plistClass));
     }
 }
 
 /* Generic Property List */
 
-public class H5PropertyList : H5ID {
-    mixin initPropertyListClass!H5P_DEFAULT;
+abstract package class H5PropertyList : H5ID {
+    mixin initPropertyListClass!H5P_ROOT;
 
     protected final override void doClose() {
         D_H5Pclose(m_id);
     }
-}
 
-unittest {
-    auto plist = new H5PropertyList;
-    assert(plist.id == H5P_DEFAULT);
+    final override bool opEquals(Object rhs) nothrow {
+        auto plist = cast(typeof(this)) rhs;
+        if (plist is null)
+            return false;
+        if (plist is this)
+            return true;
+        if (!plist.valid || !this.valid)
+            return false;
+        if (plist.id == this.id)
+            return true;
+        return H5Pequal(plist.id, this.id) > 0;
+    }
 }
 
 /* File Access Property List */
@@ -49,7 +57,7 @@ enum CORE_DRIVER_INCREMENT  = 64 * 1024 * 1024; // default increment for core dr
 enum CORE_DRIVER_FILEBACKED = true;             // core driver is filebacked by default
 
 public final class H5FileAccessPL : H5PropertyList {
-    mixin initPropertyListClass!H5P_FILE_ACCESS_DEFAULT;
+    mixin initPropertyListClass!H5P_FILE_ACCESS;
 
     public const {
         void setDriver(string driver : "sec2")() {
@@ -103,7 +111,7 @@ unittest {
     import std.exception : assertThrown;
 
     auto plist = new H5FileAccessPL;
-    assert(plist.id == H5P_FILE_ACCESS_DEFAULT);
+    assert(plist == new H5FileAccessPL(H5P_FILE_ACCESS_DEFAULT));
 
     assert(plist.driver == "sec2");
 
@@ -139,7 +147,7 @@ unittest {
 /* File Create Property List */
 
 public final class H5FileCreatePL : H5PropertyList {
-    mixin initPropertyListClass!H5P_FILE_CREATE_DEFAULT;
+    mixin initPropertyListClass!H5P_FILE_CREATE;
 
     public const @property {
         hsize_t userblock() {
@@ -160,7 +168,21 @@ package H5FileCreatePL fcpl(in H5File file) {
 
 unittest {
     auto plist = new H5FileCreatePL;
-    assert(plist.id == H5P_FILE_CREATE_DEFAULT);
+    plist.userblock = 1024;
+    assert(plist == plist);
+    assert(plist != new H5FileAccessPL);
+    assert(plist != new H5FileCreatePL);
+    auto plist2 = new H5FileCreatePL;
+    assert(plist2 != plist);
+    plist2.userblock = 1024;
+    assert(plist == plist2);
+    assert(new H5FileCreatePL == new H5FileCreatePL);
+    assert(new H5FileCreatePL != new H5FileAccessPL);
+}
+
+unittest {
+    auto plist = new H5FileCreatePL;
+    assert(plist == new H5FileCreatePL(H5P_FILE_CREATE_DEFAULT));
     plist.userblock = 0;
     assert(plist.userblock == 0);
     assertThrown!H5Exception(plist.userblock(511));

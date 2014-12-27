@@ -6,7 +6,7 @@ import hdf5.c.h5;
 import hdf5.c.h5i;
 import hdf5.c.drivers.sec2;
 
-hid_t H5FD_WINDOWS() @property {
+hid_t H5FD_WINDOWS() @property @nogc {
     version (Windows) {
         return H5FD_windows_init();
     }
@@ -15,7 +15,7 @@ hid_t H5FD_WINDOWS() @property {
     }
 }
 
-extern (C) nothrow:
+extern (C) nothrow @nogc:
 
 version (Windows) {
     alias H5FD_windows_init = H5FD_sec2_init;

@@ -60,7 +60,7 @@ alias H5O_msg_crt_idx_t = uint32_t;
 
 /* Extern declarations, structs and globals */
 
-extern (C) nothrow:
+extern (C) nothrow @nogc:
 
 struct H5O_hdr_info_t {
     uint version_; // was "version"

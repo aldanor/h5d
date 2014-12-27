@@ -147,7 +147,7 @@ enum uint H5T_OPAQUE_TAG_MAX = 256;
 
 /* Extern declarations, structs and globals */
 
-extern (C) nothrow:
+extern (C) nothrow @nogc:
 
 struct H5T_cdata_t {
     H5T_cmd_t   command;

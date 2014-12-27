@@ -9,7 +9,7 @@ import hdf5.c.h5t;
 
 /* Extern declarations, structs and globals */
 
-extern (C) nothrow:
+extern (C) nothrow @nogc:
 
 struct H5A_info_t {
     hbool_t           corder_valid;

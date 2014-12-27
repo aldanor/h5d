@@ -5,11 +5,11 @@ module hdf5.c.drivers.core;
 import hdf5.c.h5;
 import hdf5.c.h5i;
 
-hid_t H5FD_CORE() @property {
+hid_t H5FD_CORE() @property @nogc {
     return H5FD_core_init();
 }
 
-extern (C) nothrow:
+extern (C) nothrow @nogc:
 
 hid_t   H5FD_core_init();
 void    H5FD_core_term();

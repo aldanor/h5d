@@ -2,7 +2,7 @@ module hdf5.c.meta.wrap;
 
 mixin template _makeProperty(alias parent, string suffix, alias func, string name) {
     import std.string : format;
-    mixin(("public typeof(__traits(getMember, parent, name)) %s() @property nothrow "
+    mixin(("public typeof(__traits(getMember, parent, name)) %s() @property nothrow @nogc "
           ~ "{ cast(void) func(); return __traits(getMember, parent, name); }").format(
           name[0 .. $ - suffix.length]));
 }

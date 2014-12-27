@@ -12,9 +12,10 @@ package class H5ID {
         registry[id] = this;
     }
 
-    ~this() {
-        registry[m_id] = null;
-        this.decref();
+    ~this() @nogc {
+        auto id_type = H5Iget_type(m_id);
+        if (id_type > H5I_BADID && id_type < H5I_NTYPES)
+            H5Idec_ref(m_id);
     }
 
     public final void close() {
@@ -36,7 +37,7 @@ package class H5ID {
         return cast(R) new H5ID(this.id);
     }
 
-    public final hid_t id() const @property nothrow {
+    public final hid_t id() const @property nothrow @nogc {
         return m_id;
     }
 
@@ -45,9 +46,16 @@ package class H5ID {
     }
 
     package static void invalidateRegistry() {
-        foreach (id, ref obj; registry)
-            if (!obj.valid)
+        H5ID[hid_t] updatedRegistry;
+        foreach (id, ref obj; registry) {
+            if (obj is null || *cast(void**) obj is null)
+                continue;
+            else if (!obj.valid) {
                 obj.invalidate();
+                updatedRegistry[id] = obj;
+            }
+        }
+        registry = updatedRegistry.dup;
     }
 }
 
@@ -106,6 +114,16 @@ package const {
         if (obj.valid(true))
             D_H5Idec_ref(obj.id);
     }
+}
+
+unittest {
+    auto id = new H5ID(-1);
+    assert(-1 in H5ID.registry);
+    destroy(id);
+    assert(-1 in H5ID.registry);
+    assert(*cast(void**) H5ID.registry[-1] is null);
+    H5ID.invalidateRegistry();
+    assert(-1 !in H5ID.registry);
 }
 
 unittest {

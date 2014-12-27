@@ -5,11 +5,11 @@ module hdf5.c.drivers.log;
 import hdf5.c.h5;
 import hdf5.c.h5i;
 
-hid_t H5FD_LOG() @property {
+hid_t H5FD_LOG() @property @nogc {
     return H5FD_log_init();
 }
 
-extern (C) nothrow:
+extern (C) nothrow @nogc:
 
 enum ulong H5FD_LOG_LOC_READ     = 0x00000001;
 enum ulong H5FD_LOG_LOC_WRITE    = 0x00000002;

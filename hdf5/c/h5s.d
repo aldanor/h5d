@@ -43,7 +43,7 @@ enum H5S_sel_type {
 
 /* Extern declarations, structs and globals */
 
-extern (C) nothrow:
+extern (C) nothrow @nogc:
 
 hid_t   H5Screate(H5S_class_t type);
 hid_t   H5Screate_simple(int rank, const hsize_t dims[], const hsize_t maxdims[]);

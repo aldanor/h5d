@@ -51,7 +51,7 @@ enum H5D_mpio_no_collective_cause_t {
 
 /* Extern declarations, structs and globals */
 
-extern (C) nothrow:
+extern (C) nothrow @nogc:
 
 alias H5P_cls_create_func_t = herr_t function (hid_t prop_id, void *create_data);
 alias H5P_cls_copy_func_t = herr_t function (hid_t new_prop_id, hid_t old_prop_id, void *copy_data);
