@@ -5,6 +5,7 @@ import hdf5.api;
 import hdf5.exception;
 import hdf5.library;
 import hdf5.utils;
+import hdf5.group;
 
 public import hdf5.id;
 public import hdf5.plist;
@@ -77,9 +78,14 @@ public final class H5File : H5Container {
             return mode == H5F_ACC_RDONLY ? "r" : "r+";
         }
 
-        // Returns the name of the file
+        /// Returns the name of the file.
         string filename() {
             return getH5String!D_H5Fget_name(m_id);
+        }
+
+        // Returns a reference to the root group.
+        H5Group root() {
+            return this.group("/");
         }
     }
 
