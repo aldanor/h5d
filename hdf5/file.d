@@ -4,6 +4,7 @@ import hdf5.id;
 import hdf5.api;
 import hdf5.exception;
 import hdf5.library;
+import hdf5.utils;
 
 public import hdf5.id;
 public import hdf5.plist;
@@ -12,7 +13,7 @@ public import hdf5.container;
 import std.string    : toStringz;
 
 version (unittest) {
-    import std.file      : tempDir, remove, exists, setAttributes;
+    import std.file      : tempDir, remove, exists, setAttributes, getSize;
     import std.path      : buildPath;
     import std.stdio     : File;
     import std.exception : assertThrown;
@@ -58,12 +59,12 @@ public final class H5File : H5Container {
         }
 
         /// Returns the free space in the file in bytes.
-        size_t freeSpace() {
+        size_t free() {
             return D_H5Fget_freespace(m_id);
         }
 
         /// Returns the file size in bytes.
-        size_t fileSize() {
+        size_t size() {
             hsize_t size;
             D_H5Fget_filesize(m_id, &size);
             return size;
@@ -74,6 +75,11 @@ public final class H5File : H5Container {
             uint mode;
             D_H5Fget_intent(m_id, &mode);
             return mode == H5F_ACC_RDONLY ? "r" : "r+";
+        }
+
+        // Returns the name of the file
+        string filename() {
+            return getH5String!D_H5Fget_name(m_id);
         }
     }
 
@@ -338,11 +344,13 @@ unittest {
 unittest {
     auto file = openH5File!("core", false)("foo");
     auto group = file.createGroup("bar");
+    assert(file.name == "/");
     assert(group.name == "/bar");
     file.close();
     assert(!file.valid && file.id == H5I_INVALID_HID);
+    assertThrown!H5Exception(file.name);
     assertThrown!H5Exception(file.createGroup("baz"));
-    assert(!group.valid && group.id == H5I_INVALID_HID && group.type == H5I_BADID);
+    assert(!group.valid && group.id == H5I_INVALID_HID);
     assertThrown!H5Exception(group.name);
 }
 
@@ -409,6 +417,20 @@ unittest {
     f.close();
     foreach (i, x; data)
         assert(x == i % 256);
+}
+
+// filename, free, size, flush
+unittest {
+    auto filename = tempDir.buildPath("foo.h5");
+    scope(exit) if (filename.exists) filename.remove();
+    auto file = new H5File(filename);
+    scope(exit) file.close();
+    assert(file.filename == filename);
+    assert(file.free == 0);
+    assert(file.size > 0);
+    assert(filename.getSize == 0);
+    file.flush();
+    assert(file.size == filename.getSize);
 }
 
 unittest {
