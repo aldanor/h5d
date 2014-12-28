@@ -102,63 +102,57 @@ package class H5ID {
     package static void invalidateRegistry() {
         registry.prune();
     }
-}
 
-public const nothrow {
-    bool isFile(in H5ID obj)              { return obj.type == H5I_FILE; }
-    bool isGroup(in H5ID obj)             { return obj.type == H5I_GROUP; }
-    bool isDatatype(in H5ID obj)          { return obj.type == H5I_DATATYPE; }
-    bool isDataspace(in H5ID obj)         { return obj.type == H5I_DATASPACE; }
-    bool isDataset(in H5ID obj)           { return obj.type == H5I_DATASET; }
-    bool isAttribute(in H5ID obj)         { return obj.type == H5I_ATTR; }
-    bool isReference(in H5ID obj)         { return obj.type == H5I_REFERENCE; }
-    bool isVFL(in H5ID obj)               { return obj.type == H5I_VFL; }
-    bool isPropertyListClass(in H5ID obj) { return obj.type == H5I_GENPROP_CLS; }
-    bool isPropertyList(in H5ID obj)      { return obj.type == H5I_GENPROP_LST; }
-    bool isErrorClass(in H5ID obj)        { return obj.type == H5I_ERROR_CLASS; }
-    bool isErrorMessage(in H5ID obj)      { return obj.type == H5I_ERROR_MSG; }
-    bool isErrorStack(in H5ID obj)        { return obj.type == H5I_ERROR_STACK; }
+    public const nothrow {
+        bool isFile()              { return this.type == H5I_FILE; }
+        bool isGroup()             { return this.type == H5I_GROUP; }
+        bool isDatatype()          { return this.type == H5I_DATATYPE; }
+        bool isDataspace()         { return this.type == H5I_DATASPACE; }
+        bool isDataset()           { return this.type == H5I_DATASET; }
+        bool isAttribute()         { return this.type == H5I_ATTR; }
+        bool isReference()         { return this.type == H5I_REFERENCE; }
+        bool isVFL()               { return this.type == H5I_VFL; }
+        bool isPropertyListClass() { return this.type == H5I_GENPROP_CLS; }
+        bool isPropertyList()      { return this.type == H5I_GENPROP_LST; }
+        bool isErrorClass()        { return this.type == H5I_ERROR_CLASS; }
+        bool isErrorMessage()      { return this.type == H5I_ERROR_MSG; }
+        bool isErrorStack()        { return this.type == H5I_ERROR_STACK; }
 
-    H5I_type_t type(in H5ID obj) {
-        if (obj.id <= 0)
-            return H5I_BADID;
-        auto id_type = H5Iget_type(obj.id);
-        if (id_type <= H5I_BADID || id_type >= H5I_NTYPES)
-            return H5I_BADID;
-        return id_type;
+        H5I_type_t type() {
+            if (m_id <= 0)
+                return H5I_BADID;
+            auto id_type = H5Iget_type(m_id);
+            if (id_type <= H5I_BADID || id_type >= H5I_NTYPES)
+                return H5I_BADID;
+            return id_type;
+        }
+
+        bool valid()  {
+            if (m_id <= 0 || m_id == H5I_INVALID_HID)
+                return false;
+            auto id_type = this.type;
+            return id_type > H5I_BADID && id_type < H5I_NTYPES;
+        }
+
+        bool valid(bool user = false) {
+            return user ? H5Iis_valid(m_id) == 1 : this.valid;
+        }
     }
 
-    bool valid(in H5ID obj)  {
-        if (!obj.id)
-            return false;
-        auto id_type = obj.type;
-        return id_type > H5I_BADID && id_type < H5I_NTYPES;
-    }
+    package const {
+        uint refcount() {
+            return D_H5Iget_ref(m_id);
+        }
 
-    bool valid(in H5ID obj, bool user = false) {
-        return user ? H5Iis_valid(obj.id) == 1 : obj.valid;
-    }
-}
+        void incref() {
+            if (this.valid(true))
+                D_H5Iinc_ref(m_id);
+        }
 
-public const {
-    string name(in H5ID obj) {
-        return getH5String!D_H5Iget_name(obj.id);
-    }
-}
-
-package const {
-    uint refcount(in H5ID obj) {
-        return D_H5Iget_ref(obj.id);
-    }
-
-    void incref(in H5ID obj) {
-        if (obj.valid(true))
-            D_H5Iinc_ref(obj.id);
-    }
-
-    void decref(in H5ID obj){
-        if (obj.valid(true))
-            D_H5Idec_ref(obj.id);
+        void decref() {
+            if (this.valid(true))
+                D_H5Idec_ref(m_id);
+        }
     }
 }
 
@@ -197,7 +191,6 @@ unittest {
     assertThrown!H5Exception(obj.refcount);
     obj.decref();
     assertThrown!H5Exception(obj.refcount);
-    assertThrown!H5Exception(obj.name);
 
     // existing generic id
     obj = new H5ID(H5P_ROOT);

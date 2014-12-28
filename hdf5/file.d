@@ -6,12 +6,10 @@ import hdf5.exception;
 import hdf5.library;
 import hdf5.utils;
 import hdf5.group;
+import hdf5.container;
+import hdf5.plist;
 
-public import hdf5.id;
-public import hdf5.plist;
-public import hdf5.container;
-
-import std.string    : toStringz;
+import std.string : toStringz;
 
 version (unittest) {
     import std.file      : tempDir, remove, exists, setAttributes, getSize;
@@ -78,10 +76,10 @@ public final class H5File : H5Container {
             return mode == H5F_ACC_RDONLY ? "r" : "r+";
         }
 
-        /// Returns the name of the file.
-        string filename() {
-            return getH5String!D_H5Fget_name(m_id);
-        }
+        ///// Returns the name of the file.
+        //string filename() {
+        //    return getH5String!D_H5Fget_name(m_id);
+        //}
 
         // Returns a reference to the root group.
         H5Group root() {
@@ -431,7 +429,6 @@ unittest {
     scope(exit) if (filename.exists) filename.remove();
     auto file = new H5File(filename);
     scope(exit) file.close();
-    assert(file.filename == filename);
     assert(file.free == 0);
     assert(file.size > 0);
     assert(filename.getSize == 0);
