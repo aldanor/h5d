@@ -40,15 +40,15 @@ package abstract class H5Container : H5Location {
     }
 }
 
-// length
+// length, group, createGroup, opIndex
 unittest {
     auto file = openH5File!("core", false)("foo.h5");
     scope(exit) file.close();
     file.createGroup("foo").createGroup("bar");
     file.createGroup("baz");
     assert(file.length == 2);
-    assert(file.root.length == 2);
+    assert(file.root.group(".").length == 2);
     assert(file["foo"].length == 1);
-    assert(file["foo/bar"].length == 0);
+    assert(file["foo"].group("bar").length == 0);
     assert(file.root["baz"].length == 0);
 }
