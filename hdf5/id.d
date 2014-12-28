@@ -3,13 +3,65 @@ module hdf5.id;
 import hdf5.api;
 import hdf5.utils;
 
+
+private struct H5IDRegistry {
+    private hid_t[size_t] registry;
+
+    static size_t toAddr(in H5ID obj) @nogc nothrow {
+        return cast(size_t) *cast(void**) &obj;
+    }
+
+    static H5ID fromAddr(size_t addr) @nogc nothrow {
+        auto ptr = cast(void*) addr;
+        return ptr is null ? null : *cast(H5ID*) &ptr;
+    }
+
+    void store(in H5ID obj) nothrow {
+        if (obj !is null)
+            registry[toAddr(obj)] = obj.id;
+    }
+
+    void remove(in H5ID obj) @nogc nothrow {
+        if (obj !is null) {
+            auto ptr = toAddr(obj) in registry;
+            if (ptr !is null)
+                *ptr = 0;
+        }
+    }
+
+    bool opIn_r(in H5ID obj) const {
+        return toAddr(obj) in this;
+    }
+
+    bool opIn_r(size_t addr) const {
+        return (addr in registry) !is null;
+    }
+
+    void prune() {
+        auto r = registry.dup;
+        registry = registry.init;
+        foreach (addr, id; r) {
+            if (!addr || id <= 0)
+                continue;
+            auto obj = fromAddr(addr);
+            if (obj is null)
+                continue;
+            auto id_type = H5Iget_type(obj.id);
+            if (id_type <= H5I_BADID || id_type >= H5I_NTYPES || H5Iget_ref(obj.id) <= 0)
+                obj.invalidate();
+            else
+                store(obj);
+        }
+    }
+}
+
 package class H5ID {
     protected hid_t m_id = H5I_INVALID_HID;
-    private static H5ID[hid_t] registry; // TODO: make the registry thread-shared
+    private static H5IDRegistry registry; // TODO: make registry shared
 
     package this(hid_t id) {
         m_id = id;
-        registry[id] = this;
+        registry.store(this);
     }
 
     ~this() @nogc {
@@ -17,6 +69,7 @@ package class H5ID {
         if (id_type > H5I_BADID && id_type < H5I_NTYPES)
             if (H5Iget_ref(m_id) > 0)
                 H5Idec_ref(m_id);
+        registry.remove(this);
     }
 
     public final void close() {
@@ -42,21 +95,12 @@ package class H5ID {
         return m_id;
     }
 
-    private void invalidate() {
+    package final void invalidate() nothrow @nogc {
         m_id = H5I_INVALID_HID;
     }
 
     package static void invalidateRegistry() {
-        H5ID[hid_t] updatedRegistry;
-        foreach (id, ref obj; registry) {
-            if (obj is null || *cast(void**) obj is null)
-                continue;
-            else if (!obj.valid) {
-                obj.invalidate();
-                updatedRegistry[id] = obj;
-            }
-        }
-        registry = updatedRegistry.dup;
+        registry.prune();
     }
 }
 
@@ -94,9 +138,10 @@ public const nothrow {
     bool valid(in H5ID obj, bool user = false) {
         return user ? H5Iis_valid(obj.id) == 1 : obj.valid;
     }
+}
 
+public const {
     string name(in H5ID obj) {
-        scope(failure) return null;
         return getH5String!D_H5Iget_name(obj.id);
     }
 }
@@ -118,13 +163,22 @@ package const {
 }
 
 unittest {
+    H5IDRegistry registry;
     auto id = new H5ID(-1);
-    assert(-1 in H5ID.registry);
+    auto dt = new H5ID(D_H5Tcreate(H5T_INTEGER, 1));
+    auto addr = registry.toAddr(id);
+    registry.store(id);
+    registry.store(dt);
+    assert(addr in registry);
+    assert(id in registry);
+    assert(dt in registry);
     destroy(id);
-    assert(-1 in H5ID.registry);
-    assert(*cast(void**) H5ID.registry[-1] is null);
-    H5ID.invalidateRegistry();
-    assert(-1 !in H5ID.registry);
+    registry.prune();
+    assert(addr !in registry);
+    assert(dt in registry);
+    dt.invalidate();
+    registry.prune();
+    assert(dt !in registry);
 }
 
 unittest {
@@ -143,7 +197,7 @@ unittest {
     assertThrown!H5Exception(obj.refcount);
     obj.decref();
     assertThrown!H5Exception(obj.refcount);
-    assert(obj.name is null);
+    assertThrown!H5Exception(obj.name);
 
     // existing generic id
     obj = new H5ID(H5P_ROOT);
@@ -152,7 +206,6 @@ unittest {
     assert(!obj.valid(true));
     assert(obj.valid(false));
     assert(obj.isPropertyListClass);
-    assert(obj.name is null);
     assert(obj.refcount == 0);
     auto obj2 = obj.dup;
     assert(obj2.id == obj.id);
@@ -165,7 +218,6 @@ unittest {
     assert(obj.valid(true));
     assert(obj.valid(false));
     assert(obj.isDatatype);
-    assert(obj.name is null);
     assert(obj.refcount == 1);
     obj.incref();
     assert(obj.refcount == 2);

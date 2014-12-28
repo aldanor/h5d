@@ -334,6 +334,18 @@ unittest {
     file = openH5File!("core", true)(filename);
 }
 
+// closing the file invalidates child objects
+unittest {
+    auto file = openH5File!("core", false)("foo");
+    auto group = file.createGroup("bar");
+    assert(group.name == "/bar");
+    file.close();
+    assert(!file.valid && file.id == H5I_INVALID_HID);
+    assertThrown!H5Exception(file.createGroup("baz"));
+    assert(!group.valid && group.id == H5I_INVALID_HID && group.type == H5I_BADID);
+    assertThrown!H5Exception(group.name);
+}
+
 // test the userblock
 unittest {
     auto filename = tempDir.buildPath("foo.h5");
