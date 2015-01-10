@@ -67,16 +67,18 @@ struct H5O_hdr_info_t {
     uint nmesgs;
     uint nchunks;
     uint flags;
-    static struct space { // was struct {} space
+    struct space_t {
         hsize_t total;
         hsize_t meta;
         hsize_t mesg;
         hsize_t free;
     }
-    static struct mesg { // was struct {} mesg
+    space_t space;
+    struct mesg_t {
         uint64_t present;
         uint64_t shared_; // was "shared"
     }
+    mesg_t mesg;
 }
 
 struct H5O_info_t {
@@ -90,10 +92,11 @@ struct H5O_info_t {
     time_t          btime;
     hsize_t         num_attrs;
     H5O_hdr_info_t  hdr;
-    static struct meta_size { // was struct {} meta_size
+    struct meta_size_t {
         H5_ih_info_t   obj;
         H5_ih_info_t   attr;
     }
+    meta_size_t meta_size;
 }
 
 alias H5O_iterate_t        = herr_t function (hid_t obj, const char *name, const H5O_info_t *info,

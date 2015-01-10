@@ -40,6 +40,8 @@ public final class H5File : H5Container {
             while (object.valid && object.refcount > 0)
                 object.decref();
         D_H5Fclose(m_id);
+        while (this.valid && this.refcount > 0)
+            this.decref();
     }
 
     protected final override void afterClose() {
