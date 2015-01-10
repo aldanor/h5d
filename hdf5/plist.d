@@ -194,3 +194,28 @@ unittest {
     assert(file.fcpl.userblock == 1024);
 }
 
+/* Link Access Property List */
+
+public final class H5LinkAccessPL : H5PropertyList {
+    mixin initPropertyListClass!H5P_LINK_ACCESS;
+
+    public const @property {
+        size_t nlinks() {
+            size_t nlinks;
+            D_H5Pget_nlinks(m_id, &nlinks);
+            return nlinks;
+        }
+
+        void nlinks(size_t nlinks) {
+            D_H5Pset_nlinks(m_id, nlinks);
+        }
+    }
+}
+
+unittest {
+    auto plist = new H5LinkAccessPL;
+    assert(plist == new H5LinkAccessPL(H5P_LINK_ACCESS_DEFAULT));
+    plist.nlinks = 100;
+    assert(plist.nlinks == 100);
+}
+
